@@ -28,3 +28,15 @@ async def candidate_login(request: Request):
 async def employer_login(request: Request):
     return templates.TemplateResponse("employer_login.html",
                                       {"request": request})
+
+
+@app.get("/auth/register/employer", response_class=HTMLResponse)
+async def register_employer(request: Request):
+    return templates.TemplateResponse("employer_register.html",
+                                      {"request": request})
+
+
+@app.get("/auth/register/candidate", response_class=HTMLResponse)
+async def register_candidate(request: Request):
+    return templates.TemplateResponse("candidate_register.html",
+                                      {"request": request})

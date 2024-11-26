@@ -59,7 +59,6 @@ TABLE_CREATION_QUERIES = [
             id SERIAL PRIMARY KEY,
             company_name VARCHAR(255) NOT NULL,
             address VARCHAR(255),
-            contact_info VARCHAR(255),
             about_company TEXT,
             email VARCHAR(255) UNIQUE NOT NULL,
             phone VARCHAR(20),
