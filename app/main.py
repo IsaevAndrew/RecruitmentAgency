@@ -16,3 +16,15 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/", response_class=HTMLResponse)
 async def read_main(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
+
+
+@app.get("/auth/candidate", response_class=HTMLResponse)
+async def candidate_login(request: Request):
+    return templates.TemplateResponse("candidate_login.html",
+                                      {"request": request})
+
+
+@app.get("/auth/employer", response_class=HTMLResponse)
+async def employer_login(request: Request):
+    return templates.TemplateResponse("employer_login.html",
+                                      {"request": request})
