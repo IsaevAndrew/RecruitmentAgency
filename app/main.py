@@ -2,20 +2,17 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-
+from app.routes.auth_routes import router as auth_router
 from app.routes.candidate_routes import router as candidate_router
-
 from app.routes.employer_routes import router as employer_router
 
 app = FastAPI()
 
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(candidate_router, prefix="/register")
 app.include_router(employer_router, prefix="/register")
 
-# Подключение папки со статическими файлами
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Настройка шаблонов
 templates = Jinja2Templates(directory="templates")
 
 
