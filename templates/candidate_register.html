@@ -15,7 +15,9 @@
     <div class="container">
         <h2>Создайте аккаунт</h2>
         <p>Введите данные для регистрации</p>
-        <form id="candidateForm" action="/register/candidate" method="post">
+        <p class="note"><span class="required">*</span> Обязательные поля</p>
+        <form id="candidateForm" action="/register/candidate" method="post"
+              novalidate>
             <div class="form-group">
                 <label for="last_name">Фамилия <span
                         class="required">*</span></label>
@@ -41,6 +43,7 @@
             <div class="form-group">
                 <label for="gender">Пол <span class="required">*</span></label>
                 <select id="gender" name="gender" required>
+                    <option value="">Выберите</option>
                     <option value="male">Мужчина</option>
                     <option value="female">Женщина</option>
                 </select>
@@ -50,19 +53,21 @@
                         class="required">*</span></label>
                 <input type="email" id="email" name="email"
                        placeholder="example@mail.com" required>
+                <span class="error-message" id="email-error"></span>
             </div>
             <div class="form-group">
                 <label for="phone">Телефон <span
                         class="required">*</span></label>
                 <input type="tel" id="phone" name="phone"
-                       placeholder="+7 (999) 999-99-99" required
-                       pattern="^\+?[0-9\s\-()]{10,15}$">
+                       placeholder="+7 (999) 999-99-99" required>
+                <span class="error-message" id="phone-error"></span>
             </div>
             <div class="form-group">
                 <label for="password">Пароль <span
                         class="required">*</span></label>
                 <input type="password" id="password" name="password"
-                       placeholder="Введите пароль" required minlength="8">
+                       placeholder="Введите пароль" required>
+                <span class="error-message" id="password-error"></span>
             </div>
             <div class="form-group">
                 <label for="confirm_password">Повторите пароль <span
@@ -70,6 +75,7 @@
                 <input type="password" id="confirm_password"
                        name="confirm_password" placeholder="Повторите пароль"
                        required>
+                <span class="error-message" id="confirm-password-error"></span>
             </div>
             <div class="form-group">
                 <label for="city">Город проживания <span
@@ -79,20 +85,22 @@
             </div>
             <div class="form-group">
                 <label for="education">Образование</label>
-                <textarea id="education" name="education" rows="8"
+                <textarea id="education" name="education" rows="4"
                           placeholder="Укажите своё образование"></textarea>
             </div>
             <div class="form-group">
                 <label for="work_experience">Опыт работы</label>
-                <textarea id="work_experience" name="work_experience" rows="8"
+                <textarea id="work_experience" name="work_experience" rows="4"
                           placeholder="Укажите ваш опыт работы"></textarea>
             </div>
             <div class="form-group">
                 <label for="skills">Навыки</label>
-                <textarea id="skills" name="skills" rows="8"
+                <textarea id="skills" name="skills" rows="4"
                           placeholder="Опишите свои ключевые навыки"></textarea>
             </div>
-            <button type="submit" class="button">Зарегистрироваться</button>
+            <button type="submit" id="submitButton" class="button" disabled>
+                Зарегистрироваться
+            </button>
         </form>
         <p class="redirect">Уже есть аккаунт? <a
                 href="/auth/candidate">Войти</a></p>
@@ -104,20 +112,53 @@
 </footer>
 
 <script>
-    document.getElementById('candidateForm').addEventListener('submit', function (event) {
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirm_password').value;
-        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('candidateForm');
+        const submitButton = document.getElementById('submitButton');
+        const requiredInputs = Array.from(form.querySelectorAll('[required]'));
+        const emailInput = document.getElementById('email');
+        const phoneInput = document.getElementById('phone');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
 
-        if (!passwordPattern.test(password)) {
-            alert("Пароль должен содержать хотя бы одну заглавную букву, одну строчную букву и одну цифру.");
-            event.preventDefault();
-        }
+        const validateForm = () => {
+            const isValid = requiredInputs.every(input => input.checkValidity());
+            submitButton.disabled = !isValid;
+        };
 
-        if (password !== confirmPassword) {
-            alert("Пароли не совпадают.");
-            event.preventDefault();
-        }
+        // Валидация почты
+        emailInput.addEventListener('input', function () {
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const errorMessage = document.getElementById('email-error');
+            errorMessage.textContent = emailPattern.test(emailInput.value) ? '' : 'Введите корректный email.';
+            validateForm();
+        });
+
+        // Валидация телефона
+        phoneInput.addEventListener('input', function () {
+            const phonePattern = /^\+?[0-9\s\-()]{10,15}$/;
+            const errorMessage = document.getElementById('phone-error');
+            errorMessage.textContent = phonePattern.test(phoneInput.value) ? '' : 'Введите корректный номер телефона.';
+            validateForm();
+        });
+
+        // Валидация пароля
+        passwordInput.addEventListener('input', function () {
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+            const errorMessage = document.getElementById('password-error');
+            errorMessage.textContent = passwordPattern.test(passwordInput.value) ? '' : 'Пароль должен содержать заглавные, строчные буквы и цифры.';
+            validateForm();
+        });
+
+        // Проверка совпадения паролей
+        confirmPasswordInput.addEventListener('input', function () {
+            const errorMessage = document.getElementById('confirm-password-error');
+            errorMessage.textContent = passwordInput.value === confirmPasswordInput.value ? '' : 'Пароли не совпадают.';
+            validateForm();
+        });
+
+        // Проверка формы при изменении любого поля
+        requiredInputs.forEach(input => input.addEventListener('input', validateForm));
     });
 </script>
 </body>

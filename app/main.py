@@ -1,10 +1,16 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-# Инициализация приложения FastAPI
+from app.routes.candidate_routes import router as candidate_router
+
+from app.routes.employer_routes import router as employer_router
+
 app = FastAPI()
+
+app.include_router(candidate_router, prefix="/register")
+app.include_router(employer_router, prefix="/register")
 
 # Подключение папки со статическими файлами
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -40,3 +46,26 @@ async def register_employer(request: Request):
 async def register_candidate(request: Request):
     return templates.TemplateResponse("candidate_register.html",
                                       {"request": request})
+
+
+@app.post("/register/employer", response_class=HTMLResponse)
+async def register_employer(
+        request: Request,
+        email: str = Form(...),
+        phone: str = Form(...),
+        password: str = Form(...),
+        confirm_password: str = Form(...),
+        company_name: str = Form(...),
+        address: str = Form(...),
+        about_company: str = Form(None),
+):
+    print({
+        "email": email,
+        "phone": phone,
+        "password": password,
+        "confirm_password": confirm_password,
+        "company_name": company_name,
+        "address": address,
+        "about_company": about_company,
+    })
+    return templates.TemplateResponse("home.html", {"request": request})
