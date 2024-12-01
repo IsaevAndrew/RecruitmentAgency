@@ -133,6 +133,39 @@ TABLE_CREATION_QUERIES = [
     """),
 ]
 
+POSITIONS = [
+    {"title": "Junior Python Developer"},
+    {"title": "Middle Python Developer"},
+    {"title": "Senior Python Developer"},
+    {"title": "Junior Java Developer"},
+    {"title": "Middle Java Developer"},
+    {"title": "Senior Java Developer"},
+    {"title": "Junior Frontend Developer"},
+    {"title": "Middle Frontend Developer"},
+    {"title": "Senior Frontend Developer"},
+    {"title": "Junior DevOps Engineer"},
+    {"title": "Middle DevOps Engineer"},
+    {"title": "Senior DevOps Engineer"},
+    {"title": "Data Scientist"},
+    {"title": "Data Engineer"},
+    {"title": "Game Developer"},
+    {"title": "Mobile Developer (iOS)"},
+    {"title": "Mobile Developer (Android)"},
+    {"title": "Junior QA Engineer"},
+    {"title": "Middle QA Engineer"},
+    {"title": "Senior QA Engineer"},
+    {"title": "Junior Go Developer"},
+    {"title": "Middle Go Developer"},
+    {"title": "Senior Go Developer"},
+    {"title": "Business Analyst"},
+    {"title": "System Analyst"},
+    {"title": "Product Manager"},
+    {"title": "Project Manager"},
+    {"title": "Team Lead"},
+    {"title": "Technical Director"},
+    {"title": "CTO (Chief Technology Officer)"}
+]
+
 
 async def execute_sql(sql: text):
     """
@@ -143,6 +176,25 @@ async def execute_sql(sql: text):
         await conn.commit()
 
 
+async def populate_positions():
+    """
+    Проверяет и заполняет таблицу positions, если она пуста.
+    """
+    async with engine.connect() as conn:
+        result = await conn.execute(text("SELECT COUNT(*) FROM positions"))
+        count = result.scalar()
+        if count == 0:
+            for position in POSITIONS:
+                await conn.execute(
+                    text("INSERT INTO positions (title) VALUES (:title)"),
+                    position,
+                )
+            await conn.commit()
+            print("Таблица 'positions' успешно заполнена.")
+        else:
+            print("Таблица 'positions' уже содержит данные.")
+
+
 async def create_tables():
     """
     Создает все таблицы в базе данных.
@@ -150,11 +202,12 @@ async def create_tables():
     try:
         for query in TABLE_CREATION_QUERIES:
             await execute_sql(query)
-        print("Все таблицы успешно созданы.")
+        await populate_positions()
+        print("Создание таблиц прошло успешно.")
     except Exception as e:
         print(f"Ошибка при создании таблиц: {e}")
 
 
 if __name__ == "__main__":
-    create_database()  # Синхронно создаём базу данных
-    asyncio.run(create_tables())  # Асинхронно создаём таблицы
+    create_database()
+    asyncio.run(create_tables())

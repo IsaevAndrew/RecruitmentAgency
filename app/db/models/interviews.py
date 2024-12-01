@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, ForeignKey, DateTime, Text
 from app.db.database import Base
 
 
-
 class Interview(Base):
     __tablename__ = 'interviews'
 

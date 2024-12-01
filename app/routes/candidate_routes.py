@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Form
+from fastapi import APIRouter, Form, Request, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.candidate_service import CandidateService
 from app.db.repositories.candidates import CandidateRepository
@@ -7,8 +7,9 @@ from app.db.dependencies import get_db
 router = APIRouter()
 
 
-@router.post("/candidate")
+@router.post("/register/candidate")
 async def register_candidate(
+        request: Request,
         last_name: str = Form(...),
         first_name: str = Form(...),
         middle_name: str = Form(None),
@@ -43,6 +44,9 @@ async def register_candidate(
 
     try:
         candidate_id = await service.create_candidate(candidate_data)
+        request.session["user_id"] = candidate_id
+        request.session["role"] = "candidate"
         return {"status": "success", "candidate_id": candidate_id}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+

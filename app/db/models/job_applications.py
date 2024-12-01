@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, ForeignKey, DateTime
 from app.db.database import Base
 
 
-
 class JobApplication(Base):
     __tablename__ = 'job_applications'
 

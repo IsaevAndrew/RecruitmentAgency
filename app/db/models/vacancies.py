@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, ForeignKey, DateTime, Text
 from app.db.database import Base
 
 
-
 class Vacancy(Base):
     __tablename__ = 'vacancies'
 

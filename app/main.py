@@ -2,15 +2,20 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
+from app.consts import SESSION_SECRET_KEY
 from app.routes.auth_routes import router as auth_router
 from app.routes.candidate_routes import router as candidate_router
 from app.routes.employer_routes import router as employer_router
+from starlette.middleware.sessions import SessionMiddleware
 
 app = FastAPI()
 
+app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET_KEY)
+
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
-app.include_router(candidate_router, prefix="/register")
-app.include_router(employer_router, prefix="/register")
+app.include_router(candidate_router, prefix="")
+app.include_router(employer_router, prefix="")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")

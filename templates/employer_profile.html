@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль работодателя</title>
+    <link rel="stylesheet" href="/static/css/styles_profile.css">
+</head>
+<body>
+<header>
+    <nav class="menu">
+        <a href="/vacancies">Вакансии</a>
+        <a href="/my-vacancies">Мои Вакансии</a>
+        <a href="/interviews">Собеседования</a>
+        <a href="/contracts">Контракты</a>
+        <a href="/profile/employer">Профиль</a>
+    </nav>
+</header>
+<main>
+    <div class="container">
+        <h1>Профиль работодателя</h1>
+        <form id="profileForm">
+            <div class="form-group">
+                <label for="company_name">Название компании:</label>
+                <input type="text" id="company_name" name="company_name"
+                       value="{{ employer.company_name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Электронная почта:</label>
+                <input type="email" id="email" name="email"
+                       value="{{ employer.email }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="phone">Телефон:</label>
+                <input type="tel" id="phone" name="phone"
+                       value="{{ employer.phone }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="address">Адрес компании:</label>
+                <input type="text" id="address" name="address"
+                       value="{{ employer.address }}" required>
+            </div>
+            <div class="form-group">
+                <label for="about_company">О компании:</label>
+                <textarea id="about_company" name="about_company">{{ employer.about_company }}</textarea>
+            </div>
+            <button type="submit" class="button">Сохранить изменения</button>
+        </form>
+        <div id="feedbackMessage"
+             style="margin-top: 20px; font-weight: bold; display: none;"></div>
+    </div>
+</main>
+<footer>
+    <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("profileForm");
+        const feedbackMessage = document.getElementById("feedbackMessage");
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault(); // Отключаем стандартное поведение формы
+
+            const formData = new FormData(form);
+
+            // Проверяем обязательные поля
+            const companyName = formData.get("company_name").trim();
+            const address = formData.get("address").trim();
+
+            if (!companyName || !address) {
+                feedbackMessage.textContent = "Название компании и адрес должны быть заполнены!";
+                feedbackMessage.style.color = "red";
+                feedbackMessage.style.display = "block";
+
+                setTimeout(() => {
+                    feedbackMessage.style.display = "none";
+                }, 5000);
+
+                return;
+            }
+
+            try {
+                const response = await fetch("/profile/employer/save", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error("Ошибка сохранения данных");
+                }
+
+                const result = await response.json();
+
+                // Отображаем сообщение об успехе
+                feedbackMessage.textContent = result.message;
+                feedbackMessage.style.color = "green";
+                feedbackMessage.style.display = "block";
+
+                setTimeout(() => {
+                    feedbackMessage.style.display = "none";
+                }, 5000);
+            } catch (error) {
+                // Отображаем сообщение об ошибке
+                feedbackMessage.textContent = error.message;
+                feedbackMessage.style.color = "red";
+                feedbackMessage.style.display = "block";
+
+                setTimeout(() => {
+                    feedbackMessage.style.display = "none";
+                }, 5000);
+            }
+        });
+    });
+</script>
+</body>
+</html>

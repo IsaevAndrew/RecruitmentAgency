@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String
 from app.db.database import Base
 
 
-
 class Position(Base):
     __tablename__ = 'positions'
 

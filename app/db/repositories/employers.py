@@ -20,3 +20,26 @@ class EmployerRepository:
         result = await self.db_session.execute(query, employer_data)
         await self.db_session.commit()
         return result.scalar()
+
+    async def get_employer_by_id(self, employer_id: int):
+        query = text("""
+            SELECT id, company_name, email, phone, address, about_company
+            FROM employers
+            WHERE id = :id
+        """)
+        result = await self.db_session.execute(query, {"id": employer_id})
+        return result.fetchone()
+
+    async def update_employer(self, employer_id: int, updated_data: dict):
+        query = text("""
+            UPDATE employers
+            SET company_name = :company_name,
+                email = :email,
+                phone = :phone,
+                address = :address,
+                about_company = :about_company
+            WHERE id = :id
+        """)
+        await self.db_session.execute(query,
+                                      {**updated_data, "id": employer_id})
+        await self.db_session.commit()
