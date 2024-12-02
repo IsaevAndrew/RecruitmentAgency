@@ -19,7 +19,7 @@ async def login_candidate(
     user = await auth_service.authenticate_candidate(email, password)
     request.session["user_id"] = user.id
     request.session["role"] = "candidate"
-    return JSONResponse({"status": "success", "user_id": user.id})
+    return RedirectResponse(url="/profile/candidate", status_code=303)
 
 
 @router.post("/employer")

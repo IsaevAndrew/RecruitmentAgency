@@ -26,3 +26,10 @@ class CandidateService:
         candidate_data["gender"] = gender_map.get(candidate_data["gender"],
                                                   candidate_data["gender"])
         return await self.repo.create_candidate(candidate_data)
+
+    async def get_candidate_profile(self, candidate_id: int):
+        return await self.repo.get_candidate_by_id(candidate_id)
+
+    async def update_candidate_profile(self, candidate_id: int,
+                                       updated_data: dict):
+        await self.repo.update_candidate(candidate_id, updated_data)

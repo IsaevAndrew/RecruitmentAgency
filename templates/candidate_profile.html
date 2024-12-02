@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль кандидата</title>
+    <link rel="stylesheet" href="/static/css/styles_profile.css">
+</head>
+<body>
+<header>
+    <nav class="menu">
+        <a href="/vacancies">Вакансии</a>
+        <a href="/my-applications">Мои заявки</a>
+        <a href="/interviews">Собеседования</a>
+        <a href="/contracts">Контракты</a>
+        <a href="/profile/candidate">Профиль</a>
+    </nav>
+</header>
+<main>
+    <div class="container">
+        <h1>Профиль кандидата</h1>
+        <form id="candidateProfileForm">
+            <div class="form-group">
+                <label for="last_name">Фамилия:</label>
+                <input type="text" id="last_name" name="last_name"
+                       value="{{ candidate.last_name }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="first_name">Имя:</label>
+                <input type="text" id="first_name" name="first_name"
+                       value="{{ candidate.first_name }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="middle_name">Отчество:</label>
+                <input type="text" id="middle_name" name="middle_name"
+                       value="{{ candidate.middle_name }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="gender">Пол:</label>
+                <select id="gender" name="gender" disabled>
+                    <option value="male" {{
+                    'selected' if candidate.gender == 'male' }}>Мужчина</option>
+                    <option value="female" {{
+                    'selected' if candidate.gender == 'female'
+                    }}>Женщина</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="date_of_birth">Дата рождения:</label>
+                <input type="date" id="date_of_birth" name="date_of_birth"
+                       value="{{ candidate.date_of_birth }}" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Электронная почта:</label>
+                <input type="email" id="email" name="email"
+                       value="{{ candidate.email }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="phone">Телефон:</label>
+                <input type="tel" id="phone" name="phone"
+                       value="{{ candidate.phone }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="city">Город проживания:</label>
+                <input type="text" id="city" name="city"
+                       value="{{ candidate.city }}" required>
+            </div>
+            <div class="form-group">
+                <label for="education">Образование:</label>
+                <textarea id="education" name="education">{{ candidate.education }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="work_experience">Опыт работы:</label>
+                <textarea id="work_experience" name="work_experience">{{ candidate.work_experience }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="skills">Навыки:</label>
+                <textarea id="skills"
+                          name="skills">{{ candidate.skills }}</textarea>
+            </div>
+            <button type="submit" class="button">Сохранить изменения</button>
+        </form>
+        <div id="feedbackMessage"
+             style="margin-top: 20px; font-weight: bold; display: none;"></div>
+    </div>
+</main>
+<footer>
+    <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
+</footer>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("candidateProfileForm");
+        const feedbackMessage = document.getElementById("feedbackMessage");
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault(); // Отключаем стандартное поведение формы
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch("/profile/candidate/save", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error("Ошибка сохранения данных");
+                }
+
+                const result = await response.json();
+
+                // Отображаем сообщение об успехе
+                feedbackMessage.textContent = result.message || "Изменения сохранены!";
+                feedbackMessage.style.color = "green";
+                feedbackMessage.style.display = "block";
+
+                setTimeout(() => {
+                    feedbackMessage.style.display = "none";
+                }, 5000);
+            } catch (error) {
+                // Отображаем сообщение об ошибке
+                feedbackMessage.textContent = error.message;
+                feedbackMessage.style.color = "red";
+                feedbackMessage.style.display = "block";
+
+                setTimeout(() => {
+                    feedbackMessage.style.display = "none";
+                }, 5000);
+            }
+        });
+    });
+</script>
+</body>
+</html>

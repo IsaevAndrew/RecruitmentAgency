@@ -85,10 +85,3 @@ async def save_employer_profile(
         "about_company": about_company,
     })
     return {"status": "success", "message": "Данные успешно обновлены"}
-    # employer = await employer_service.get_employer_profile(
-    #     current_user["user_id"])
-
-    # return templates.TemplateResponse(
-    #     "employer_profile.html",
-    #     {"request": request, "employer": employer}
-    # )

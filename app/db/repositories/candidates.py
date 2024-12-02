@@ -20,3 +20,29 @@ class CandidateRepository:
         result = await self.db_session.execute(query, candidate_data)
         await self.db_session.commit()
         return result.scalar()
+
+    async def get_candidate_by_id(self, candidate_id: int):
+        query = text("""
+            SELECT id, last_name, first_name, middle_name, date_of_birth, 
+                   city, phone, email, education, work_experience, skills 
+            FROM candidates
+            WHERE id = :candidate_id
+        """)
+        result = await self.db_session.execute(query,
+                                               {"candidate_id": candidate_id})
+        return result.fetchone()
+
+    async def update_candidate(self, candidate_id: int, updated_data: dict):
+        query = text("""
+            UPDATE candidates
+            SET 
+                date_of_birth = :date_of_birth,
+                city = :city,
+                education = :education,
+                work_experience = :work_experience,
+                skills = :skills
+            WHERE id = :candidate_id
+        """)
+        await self.db_session.execute(query, {**updated_data,
+                                              "candidate_id": candidate_id})
+        await self.db_session.commit()

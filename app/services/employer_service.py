@@ -19,14 +19,8 @@ class EmployerService:
         return await self.repo.create_employer(employer_data)
 
     async def get_employer_profile(self, employer_id: int):
-        """
-        Получить профиль работодателя по его ID.
-        """
         return await self.repo.get_employer_by_id(employer_id)
 
     async def update_employer_profile(self, employer_id: int,
                                       updated_data: dict):
-        """
-        Обновить профиль работодателя.
-        """
         await self.repo.update_employer(employer_id, updated_data)
