@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создать Вакансию</title>
+    <link rel="stylesheet" href="/static/css/styles_create_vacancy.css">
+</head>
+<body>
+<header>
+    <nav class="menu">
+        <a href="/vacancies">Вакансии</a>
+        <a href="/my-vacancies">Мои Вакансии</a>
+        <a href="/interviews">Собеседования</a>
+        <a href="/contracts">Контракты</a>
+        <a href="/profile/employer">Профиль</a>
+    </nav>
+</header>
+<main>
+    <div class="container">
+        <h1>Создать Вакансию</h1>
+        <form id="createVacancyForm">
+            <div class="form-group">
+                <label for="position">Позиция <span
+                        class="required">*</span></label>
+                <select id="position" name="position_id" required>
+                    <option value="">Выберите позицию</option>
+                    <!-- Позиции будут динамически добавлены из базы данных -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="description">Описание вакансии <span
+                        class="required">*</span></label>
+                <textarea id="description" name="description" rows="4" required
+                          placeholder="Введите описание вакансии"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="requirements">Требования <span
+                        class="required">*</span></label>
+                <textarea id="requirements" name="requirements" rows="4"
+                          required placeholder="Введите требования"></textarea>
+            </div>
+            <button type="submit" class="button">Создать Вакансию</button>
+        </form>
+        <div id="feedbackMessage"
+             style="display:none; margin-top: 10px; font-weight: bold;"></div>
+    </div>
+</main>
+<footer>
+    <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
+</footer>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("createVacancyForm");
+        const feedbackMessage = document.getElementById("feedbackMessage");
+
+        // Подгрузка позиций
+        fetch("/positions")
+            .then(response => response.json())
+            .then(data => {
+                const positionSelect = document.getElementById("position");
+                data.positions.forEach(position => {
+                    const option = document.createElement("option");
+                    option.value = position.id;
+                    option.textContent = position.title;
+                    positionSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error("Ошибка при загрузке позиций:", error);
+            });
+
+        // Отправка формы
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            try {
+                const response = await fetch("/create/vacancy", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (response.ok) {
+                    feedbackMessage.textContent = "Вакансия успешно создана!";
+                    feedbackMessage.style.color = "green";
+                    feedbackMessage.style.display = "block";
+
+                    setTimeout(() => {
+                        window.location.href = "/my-vacancies";
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    feedbackMessage.textContent = `Ошибка: ${error.detail}`;
+                    feedbackMessage.style.color = "red";
+                    feedbackMessage.style.display = "block";
+                }
+            } catch (err) {
+                console.error(err);
+                feedbackMessage.textContent = "Произошла ошибка при создании вакансии.";
+                feedbackMessage.style.color = "red";
+                feedbackMessage.style.display = "block";
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -83,11 +83,20 @@ TABLE_CREATION_QUERIES = [
         );
         """),
     text("""
+    CREATE TABLE IF NOT EXISTS positions (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL
+    );
+    """),
+    text("""
     CREATE TABLE IF NOT EXISTS vacancies (
         id SERIAL PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
         description TEXT,
-        employer_id INT REFERENCES employers(id) ON DELETE CASCADE
+        requirements TEXT,
+        publication_date TIMESTAMP NOT NULL DEFAULT NOW(),
+        is_active BOOLEAN NOT NULL DEFAULT TRUE,
+        employer_id INT REFERENCES employers(id) ON DELETE CASCADE,
+        position_id INT REFERENCES positions(id) ON DELETE SET NULL
     );
     """),
     text("""
@@ -115,13 +124,6 @@ TABLE_CREATION_QUERIES = [
         vacancy_id INT REFERENCES vacancies(id) ON DELETE CASCADE,
         application_date TIMESTAMP NOT NULL,
         application_status VARCHAR(50) NOT NULL
-    );
-    """),
-    text("""
-    CREATE TABLE IF NOT EXISTS positions (
-        id SERIAL PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        description TEXT
     );
     """),
     text("""

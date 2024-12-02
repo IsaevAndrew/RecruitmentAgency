@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои Вакансии</title>
+    <link rel="stylesheet" href="/static/css/styles_vacancies.css">
+</head>
+<body>
+<header>
+    <nav class="menu">
+        <a href="/vacancies">Вакансии</a>
+        <a href="/my-vacancies">Мои Вакансии</a>
+        <a href="/interviews">Собеседования</a>
+        <a href="/contracts">Контракты</a>
+        <a href="/profile/employer">Профиль</a>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <h1>Мои Вакансии</h1>
+        <div class="actions">
+            <button id="createVacancyButton" class="button">Создать Вакансию
+            </button>
+        </div>
+        <div id="vacanciesContainer" class="vacancies">
+            {% if vacancies %}
+            {% for vacancy in vacancies %}
+            <div class="vacancy-card">
+                <h2>{{ vacancy.position_title }}</h2>
+                <p><strong>Описание:</strong> {{ vacancy.description }}</p>
+                <p><strong>Требования:</strong> {{ vacancy.requirements }}</p>
+                <p><strong>Дата публикации:</strong> {{
+                    vacancy.publication_date.strftime("%Y-%m-%d %H:%M:%S")
+                    }}</p>
+                <p><strong>Статус:</strong> {{ "Активна" if vacancy.is_active
+                    else "Неактивна" }}</p>
+                <div class="card-actions">
+                    <button class="button">Редактировать</button>
+                    <button class="button button-delete">Удалить</button>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>У вас пока нет вакансий.</p>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
+</footer>
+
+<script>
+    document.getElementById("createVacancyButton").addEventListener("click", function () {
+        window.location.href = "/create/vacancy";
+    });
+</script>
+</body>
+</html>

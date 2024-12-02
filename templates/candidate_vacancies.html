@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Все Вакансии</title>
+    <link rel="stylesheet" href="/static/css/styles_vacancies.css">
+</head>
+<body>
+<header>
+    <nav class="menu">
+        <a href="/vacancies">Вакансии</a>
+        <a href="/my-applications">Мои заявки</a>
+        <a href="/interviews">Собеседования</a>
+        <a href="/contracts">Контракты</a>
+        <a href="/profile/candidate">Профиль</a>
+    </nav>
+</header>
+<main>
+    <div class="container">
+        <h1>Все Вакансии</h1>
+        {% if vacancies %}
+        <div class="vacancy-list">
+            {% for vacancy in vacancies %}
+            <div class="vacancy-card">
+                <h2>{{ vacancy.position_title }}</h2>
+                <p><strong>Описание:</strong> {{ vacancy.description }}</p>
+                <p><strong>Требования:</strong> {{ vacancy.requirements }}</p>
+                <p><strong>Дата публикации:</strong> {{
+                    vacancy.publication_date.strftime("%Y-%m-%d %H:%M:%S") }}
+                </p>
+                <div class="card-actions">
+                    <button class="button apply-button"
+                            data-vacancy-id="{{ vacancy.id }}">
+                        Откликнуться
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-vacancies-message">
+            Пока нет активных вакансий.
+        </div>
+        {% endif %}
+        <div id="feedbackMessage"
+             style="display:none; margin-top: 10px; font-weight: bold;"></div>
+    </div>
+</main>
+<footer>
+    <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
+</footer>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const applyButtons = document.querySelectorAll(".apply-button");
+        const feedbackMessage = document.getElementById("feedbackMessage");
+
+        applyButtons.forEach(button => {
+            button.addEventListener("click", async function () {
+                const vacancyId = this.dataset.vacancyId;
+                try {
+                    const response = await fetch("/applications/apply", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({vacancy_id: vacancyId})
+                    });
+
+                    if (response.ok) {
+                        feedbackMessage.textContent = "Вы успешно откликнулись на вакансию!";
+                        feedbackMessage.style.color = "green";
+                        feedbackMessage.style.display = "block";
+
+                        setTimeout(() => {
+                            feedbackMessage.style.display = "none";
+                        }, 3000);
+                    } else {
+                        const error = await response.json();
+                        feedbackMessage.textContent = `Ошибка: ${error.detail}`;
+                        feedbackMessage.style.color = "red";
+                        feedbackMessage.style.display = "block";
+                    }
+                } catch (err) {
+                    console.error(err);
+                    feedbackMessage.textContent = "Произошла ошибка при отклике на вакансию.";
+                    feedbackMessage.style.color = "red";
+                    feedbackMessage.style.display = "block";
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

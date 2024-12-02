@@ -1,0 +1,97 @@
+/* Основные стили */
+html, body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    height: 100%; /* Устанавливаем высоту для flex-контейнера */
+}
+
+body {
+    display: flex;
+    flex-direction: column; /* Устанавливаем направление для flex-элементов */
+    min-height: 100vh; /* Высота страницы всегда 100% от области просмотра */
+}
+
+header .menu {
+    background-color: #0073e6;
+    padding: 10px;
+    text-align: center;
+}
+
+header .menu a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 1rem;
+}
+
+header .menu a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    flex-grow: 1; /* Контейнер растягивается, заполняя доступное пространство */
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: white;
+    background-color: #0073e6;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #005bb5;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 0.85rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    margin-top: auto; /* Отправляем футер вниз */
+}
+
+footer p {
+    margin: 0;
+}
