@@ -44,10 +44,13 @@
                 <label for="about_company">О компании:</label>
                 <textarea id="about_company" name="about_company" rows="8">{{ employer.about_company }}</textarea>
             </div>
-            <button type="submit" class="button">Сохранить изменения</button>
+            <div class="button-container">
+                <button type="submit" class="save-button">Сохранить изменения
+                </button>
+                <button id="logoutButton" class="logout-button">Выйти</button>
+            </div>
         </form>
-        <div id="feedbackMessage"
-             style="margin-top: 20px; font-weight: bold; display: none;"></div>
+        <div id="feedbackMessage" class="feedback-message"></div>
     </div>
 </main>
 <footer>
@@ -58,19 +61,18 @@
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("profileForm");
         const feedbackMessage = document.getElementById("feedbackMessage");
+        const logoutButton = document.getElementById("logoutButton");
 
         form.addEventListener("submit", async function (event) {
             event.preventDefault(); // Отключаем стандартное поведение формы
 
             const formData = new FormData(form);
-
-            // Проверяем обязательные поля
             const companyName = formData.get("company_name").trim();
             const address = formData.get("address").trim();
 
             if (!companyName || !address) {
                 feedbackMessage.textContent = "Название компании и адрес должны быть заполнены!";
-                feedbackMessage.style.color = "red";
+                feedbackMessage.classList.add("error");
                 feedbackMessage.style.display = "block";
 
                 setTimeout(() => {
@@ -91,24 +93,36 @@
                 }
 
                 const result = await response.json();
-
-                // Отображаем сообщение об успехе
-                feedbackMessage.textContent = result.message;
-                feedbackMessage.style.color = "green";
+                feedbackMessage.textContent = result.message || "Изменения сохранены!";
+                feedbackMessage.classList.remove("error");
+                feedbackMessage.classList.add("success");
                 feedbackMessage.style.display = "block";
 
                 setTimeout(() => {
                     feedbackMessage.style.display = "none";
                 }, 5000);
             } catch (error) {
-                // Отображаем сообщение об ошибке
                 feedbackMessage.textContent = error.message;
-                feedbackMessage.style.color = "red";
+                feedbackMessage.classList.add("error");
                 feedbackMessage.style.display = "block";
 
                 setTimeout(() => {
                     feedbackMessage.style.display = "none";
                 }, 5000);
+            }
+        });
+
+        logoutButton.addEventListener("click", async function () {
+            try {
+                const response = await fetch("/auth/logout", {method: "POST"});
+                if (response.ok) {
+                    window.location.href = "/";
+                } else {
+                    alert("Ошибка при выходе из аккаунта.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Произошла ошибка при попытке выхода.");
             }
         });
     });

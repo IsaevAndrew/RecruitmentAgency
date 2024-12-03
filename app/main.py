@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -75,3 +75,9 @@ async def register_employer(
         "about_company": about_company,
     })
     return templates.TemplateResponse("home.html", {"request": request})
+
+
+@app.post("/auth/logout", response_class=JSONResponse)
+async def logout(request: Request):
+    request.session.clear()
+    return JSONResponse({"message": "Вы вышли из аккаунта."})

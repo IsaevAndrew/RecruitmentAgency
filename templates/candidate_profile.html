@@ -48,7 +48,7 @@
             <div class="form-group">
                 <label for="date_of_birth">Дата рождения:</label>
                 <input type="date" id="date_of_birth" name="date_of_birth"
-                       value="{{ candidate.date_of_birth }}" required>
+                       value="{{ candidate.date_of_birth }}" required max="">
             </div>
             <div class="form-group">
                 <label for="email">Электронная почта:</label>
@@ -77,19 +77,29 @@
                 <label for="skills">Навыки:</label>
                 <textarea id="skills" name="skills" rows="8">{{ candidate.skills }}</textarea>
             </div>
-            <button type="submit" class="button">Сохранить изменения</button>
+            <div class="button-container">
+                <button type="submit" class="save-button">Сохранить изменения
+                </button>
+                <button id="logoutButton" class="logout-button">Выйти</button>
+            </div>
         </form>
-        <div id="feedbackMessage"
-             style="margin-top: 20px; font-weight: bold; display: none;"></div>
+        <div id="feedbackMessage" class="feedback-message"></div>
     </div>
 </main>
 <footer>
     <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
 </footer>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("candidateProfileForm");
         const feedbackMessage = document.getElementById("feedbackMessage");
+        const logoutButton = document.getElementById("logoutButton");
+
+        // Устанавливаем максимальную дату для поля "Дата рождения"
+        const dateInput = document.getElementById("date_of_birth");
+        const today = new Date().toISOString().split("T")[0]; // Получаем текущую дату в формате YYYY-MM-DD
+        dateInput.setAttribute("max", today);
 
         form.addEventListener("submit", async function (event) {
             event.preventDefault(); // Отключаем стандартное поведение формы
@@ -125,6 +135,20 @@
                 setTimeout(() => {
                     feedbackMessage.style.display = "none";
                 }, 5000);
+            }
+        });
+
+        logoutButton.addEventListener("click", async function () {
+            try {
+                const response = await fetch("/auth/logout", {method: "POST"});
+                if (response.ok) {
+                    window.location.href = "/";
+                } else {
+                    alert("Ошибка при выходе из аккаунта.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Произошла ошибка при попытке выхода.");
             }
         });
     });

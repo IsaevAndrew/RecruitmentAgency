@@ -65,6 +65,7 @@ async def get_candidate_profile(
     if current_user["role"] != "candidate":
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
+    print(current_user)
     candidate_service = CandidateService(
         repo=CandidateRepository(db_session=db))
     candidate = await candidate_service.get_candidate_profile(
