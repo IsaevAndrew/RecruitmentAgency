@@ -23,9 +23,9 @@ async def get_all_vacancies(request: Request,
             {"request": request, "vacancies": vacancies}
         )
     return templates.TemplateResponse(
-            "candidate_vacancies.html",
-            {"request": request, "vacancies": vacancies}
-        )
+        "candidate_vacancies.html",
+        {"request": request, "vacancies": vacancies}
+    )
 
 
 @router.get("/my-vacancies", response_class=HTMLResponse)
@@ -83,3 +83,22 @@ async def create_vacancy(
     }
     await vacancy_service.create_vacancy(vacancy_data)
     return RedirectResponse(url="/my-vacancies", status_code=303)
+
+
+@router.post("/vacancies/{vacancy_id}/deactivate")
+async def deactivate_vacancy(vacancy_id: int,
+                             db: AsyncSession = Depends(get_db)):
+    service = VacancyService(repo=VacancyRepository(db))
+    success = await service.deactivate_vacancy(vacancy_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Vacancy not found")
+    return {"message": "Vacancy deactivated successfully"}
+
+
+@router.post("/vacancies/{vacancy_id}/activate")
+async def activate_vacancy(vacancy_id: int, db: AsyncSession = Depends(get_db)):
+    service = VacancyService(repo=VacancyRepository(db))
+    success = await service.activate_vacancy(vacancy_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Vacancy not found")
+    return {"message": "Vacancy activated successfully"}

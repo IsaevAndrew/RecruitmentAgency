@@ -41,3 +41,15 @@ class VacancyRepository:
         """)
         await self.db_session.execute(query, vacancy_data)
         await self.db_session.commit()
+
+    async def update_vacancy_status(self, vacancy_id: int,
+                                    is_active: bool) -> bool:
+        query = text("""
+            UPDATE vacancies
+            SET is_active = :is_active
+            WHERE id = :vacancy_id
+        """)
+        result = await self.db_session.execute(query, {"is_active": is_active,
+                                                       "vacancy_id": vacancy_id})
+        await self.db_session.commit()
+        return result.rowcount > 0

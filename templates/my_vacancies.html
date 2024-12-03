@@ -27,7 +27,7 @@
         <div id="vacanciesContainer" class="vacancies">
             {% if vacancies %}
             {% for vacancy in vacancies %}
-            <div class="vacancy-card">
+            <div class="vacancy-card" data-id="{{ vacancy.id }}">
                 <h2>{{ vacancy.position_title }}</h2>
                 <p><strong>Описание:</strong> {{ vacancy.description }}</p>
                 <p><strong>Требования:</strong> {{ vacancy.requirements }}</p>
@@ -37,8 +37,11 @@
                 <p><strong>Статус:</strong> {{ "Активна" if vacancy.is_active
                     else "Неактивна" }}</p>
                 <div class="card-actions">
-                    <button class="button">Редактировать</button>
+                    {% if vacancy.is_active %}
                     <button class="button button-delete">Удалить</button>
+                    {% else %}
+                    <button class="button button-publish">Опубликовать</button>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -54,9 +57,51 @@
 </footer>
 
 <script>
-    document.getElementById("createVacancyButton").addEventListener("click", function () {
-        window.location.href = "/create/vacancy";
+    document.addEventListener("DOMContentLoaded", function () {
+        // Обработчик кнопки "Создать Вакансию"
+        document.getElementById("createVacancyButton").addEventListener("click", function () {
+            window.location.href = "/create/vacancy";
+        });
+
+        // Универсальный обработчик для кнопок "Удалить" и "Опубликовать"
+        document.getElementById("vacanciesContainer").addEventListener("click", async function (event) {
+            const button = event.target;
+            if (button.classList.contains("button-delete") || button.classList.contains("button-publish")) {
+                const vacancyCard = button.closest(".vacancy-card");
+                const vacancyId = vacancyCard.dataset.id;
+
+                // Определяем URL и новый статус в зависимости от типа кнопки
+                const isDelete = button.classList.contains("button-delete");
+                const url = isDelete
+                    ? `/vacancies/${vacancyId}/deactivate`
+                    : `/vacancies/${vacancyId}/activate`;
+
+                try {
+                    const response = await fetch(url, {method: "POST"});
+                    if (response.ok) {
+                        // Обновляем UI на основе нового статуса
+                        const newStatus = isDelete ? "Неактивна" : "Активна";
+                        vacancyCard.querySelector("p:nth-of-type(4)").innerHTML = `<strong>Статус:</strong> ${newStatus}`;
+
+                        // Меняем класс и текст кнопки
+                        if (isDelete) {
+                            button.textContent = "Опубликовать";
+                            button.classList.remove("button-delete");
+                            button.classList.add("button-publish");
+                        } else {
+                            button.textContent = "Удалить";
+                            button.classList.remove("button-publish");
+                            button.classList.add("button-delete");
+                        }
+                    } else {
+                        alert("Ошибка при изменении статуса вакансии.");
+                    }
+                } catch (error) {
+                    console.error("Произошла ошибка:", error);
+                    alert("Произошла ошибка при попытке изменения статуса.");
+                }
+            }
+        });
     });
 </script>
-</body>
-</html>
+
