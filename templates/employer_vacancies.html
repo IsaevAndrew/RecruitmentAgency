@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Все Вакансии</title>
+    <title>Вакансии работодателя</title>
     <link rel="stylesheet" href="/static/css/styles_vacancies.css">
 </head>
 <body>
@@ -18,29 +18,110 @@
 </header>
 <main>
     <div class="container">
-        <h1>Все Вакансии</h1>
-        {% if vacancies %}
-        <div class="vacancy-list">
-            {% for vacancy in vacancies %}
-            <div class="vacancy-card">
-                <h2>{{ vacancy.position_title }}</h2>
-                <p><strong>Описание:</strong> {{ vacancy.description }}</p>
-                <p><strong>Требования:</strong> {{ vacancy.requirements }}</p>
-                <p><strong>Дата публикации:</strong> {{
-                    vacancy.publication_date.strftime("%Y-%m-%d %H:%M:%S") }}
-                </p>
+        <h1 class="title">Вакансии работодателя</h1>
+        <form id="filterForm" class="filter-form">
+            <div class="form-group">
+                <label for="position">Позиция:</label>
+                <select id="position" name="positions">
+                    <option value="">Все позиции</option>
+                    <!-- Позиции будут подгружены динамически -->
+                </select>
             </div>
-            {% endfor %}
+            <div class="form-group">
+                <label for="requirements">Требования:</label>
+                <input type="text" id="requirements" name="requirements"
+                       placeholder="Введите ключевые слова">
+            </div>
+            <button type="submit" class="filter-button">Поиск</button>
+        </form>
+        <div id="vacanciesContainer" class="vacancy-grid">
+            <!-- Карточки вакансий будут подгружены динамически -->
         </div>
-        {% else %}
-        <div class="no-vacancies-message">
-            Пока нет активных вакансий.
-        </div>
-        {% endif %}
+        <div id="feedbackMessage"
+             style="display:none; margin-top: 10px; font-weight: bold;"></div>
     </div>
 </main>
 <footer>
     <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
 </footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const filterForm = document.getElementById("filterForm");
+        const positionSelect = document.getElementById("position");
+        const feedbackMessage = document.getElementById("feedbackMessage");
+        const vacanciesContainer = document.getElementById("vacanciesContainer");
+
+        // Подгрузка позиций
+        async function loadPositions() {
+            try {
+                const response = await fetch("/positions");
+                if (!response.ok) throw new Error("Не удалось загрузить позиции.");
+                const data = await response.json();
+
+                data.positions.forEach(position => {
+                    const option = document.createElement("option");
+                    option.value = position.id;
+                    option.textContent = position.title;
+                    positionSelect.appendChild(option);
+                });
+            } catch (err) {
+                console.error("Ошибка загрузки позиций:", err);
+                feedbackMessage.textContent = "Ошибка загрузки позиций.";
+                feedbackMessage.style.color = "red";
+                feedbackMessage.style.display = "block";
+            }
+        }
+
+        // Загрузка вакансий
+        async function loadVacancies(filterParams = "") {
+            try {
+                const response = await fetch(`/vacancies/api${filterParams}`);
+                if (!response.ok) throw new Error("Не удалось загрузить вакансии.");
+                const data = await response.json();
+                renderVacancies(data.vacancies);
+            } catch (err) {
+                console.error("Ошибка загрузки вакансий:", err);
+                feedbackMessage.textContent = "Ошибка загрузки вакансий.";
+                feedbackMessage.style.color = "red";
+                feedbackMessage.style.display = "block";
+            }
+        }
+
+        // Обработка формы фильтров
+        filterForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const formData = new FormData(filterForm);
+            const params = new URLSearchParams(formData);
+            const query = params.toString().trim() ? `?${params}` : "";
+            await loadVacancies(query);
+        });
+
+        // Отрисовка вакансий
+        function renderVacancies(vacancies) {
+            vacanciesContainer.innerHTML = ""; // Очищаем контейнер перед добавлением вакансий
+            if (!vacancies || vacancies.length === 0) {
+                vacanciesContainer.innerHTML = `<p>Нет вакансий, соответствующих вашим критериям.</p>`;
+                return;
+            }
+
+            vacancies.forEach(vacancy => {
+                const card = document.createElement("div");
+                card.classList.add("vacancy-card");
+                card.innerHTML = `
+                <h2>${vacancy.position_title}</h2>
+                <p><strong>Описание:</strong> ${vacancy.description}</p>
+                <p><strong>Требования:</strong> ${vacancy.requirements}</p>
+                <p><strong>Дата публикации:</strong> ${new Date(vacancy.publication_date).toLocaleDateString()}</p>
+            `;
+                vacanciesContainer.appendChild(card);
+            });
+        }
+
+        // Подгрузка позиций и вакансий при загрузке страницы
+        loadPositions();
+        loadVacancies();
+    });
+</script>
 </body>
 </html>

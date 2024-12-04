@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, HTTPException, Form
+from fastapi import APIRouter, Depends, Request, HTTPException, Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import HTMLResponse, RedirectResponse
 from app.db.dependencies import get_db
@@ -101,4 +101,32 @@ async def activate_vacancy(vacancy_id: int, db: AsyncSession = Depends(get_db)):
     success = await service.activate_vacancy(vacancy_id)
     if not success:
         raise HTTPException(status_code=404, detail="Vacancy not found")
-    return {"message": "Vacancy activated successfully"}
+
+    updated_vacancy = await service.get_vacancy_by_id(vacancy_id)
+    return {
+        "message": "Vacancy activated successfully",
+        "publication_date": updated_vacancy["publication_date"]
+    }
+
+
+@router.get("/vacancies/api")
+async def get_vacancies_api(
+        positions: str = Query(None),
+        requirements: str = Query(None),
+        db: AsyncSession = Depends(get_db)
+):
+    try:
+        service = VacancyService(repo=VacancyRepository(db))
+
+        # Преобразуем строку с позициями в список целых чисел
+        positions_list = [int(pos) for pos in
+                          positions.split(",")] if positions else []
+
+        # Фильтрация вакансий
+        vacancies = await service.filter_vacancies(positions_list, requirements)
+
+        return {"vacancies": vacancies}
+    except Exception as e:
+        print(f"Ошибка фильтрации вакансий: {e}")
+        raise HTTPException(status_code=500,
+                            detail="Ошибка фильтрации вакансий")

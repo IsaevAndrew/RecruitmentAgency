@@ -17,3 +17,10 @@ class VacancyService:
 
     async def activate_vacancy(self, vacancy_id: int) -> bool:
         return await self.repo.update_vacancy_status(vacancy_id, is_active=True)
+
+    async def filter_vacancies(self, positions,
+                               requirements):
+        return await self.repo.filter_vacancies(positions, requirements)
+
+    async def get_vacancy_by_id(self, vacancy_id: int):
+        return await self.repo.get_vacancy_by_id(vacancy_id)

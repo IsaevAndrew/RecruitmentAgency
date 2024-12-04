@@ -1,0 +1,133 @@
+/* Сброс стилей */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    height: 100%; /* Устанавливаем высоту для flex-контейнера */
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background-color: #0073e6;
+    color: white;
+    padding: 15px 0;
+}
+
+header .menu {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+header .menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 5px 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+header .menu a:hover {
+    background-color: white;
+    color: #0073e6;
+    border-radius: 5px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    flex: 1; /* Занимает все оставшееся пространство */
+    display: flex;
+    flex-direction: column;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.actions {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: white;
+    background-color: #0073e6;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #005bb5;
+}
+
+.button-delete {
+    background-color: #e60000;
+}
+
+.button-delete:hover {
+    background-color: #b50000;
+}
+
+.vacancies {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.vacancy-card {
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.vacancy-card h2 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    color: #0073e6;
+}
+
+.vacancy-card p {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.card-actions {
+    margin-top: 15px;
+    text-align: right;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 0.85rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    margin-top: auto; /* Отправляем футер вниз */
+}
+
+footer p {
+    margin: 0;
+}

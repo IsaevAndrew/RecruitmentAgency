@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мои Вакансии</title>
-    <link rel="stylesheet" href="/static/css/styles_vacancies.css">
+    <link rel="stylesheet" href="/static/css/styles_my_vacancies.css">
 </head>
 <body>
 <header>
@@ -58,12 +58,6 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Обработчик кнопки "Создать Вакансию"
-        document.getElementById("createVacancyButton").addEventListener("click", function () {
-            window.location.href = "/create/vacancy";
-        });
-
-        // Универсальный обработчик для кнопок "Удалить" и "Опубликовать"
         document.getElementById("vacanciesContainer").addEventListener("click", async function (event) {
             const button = event.target;
             if (button.classList.contains("button-delete") || button.classList.contains("button-publish")) {
@@ -79,9 +73,20 @@
                 try {
                     const response = await fetch(url, {method: "POST"});
                     if (response.ok) {
+                        const responseData = await response.json();
+
                         // Обновляем UI на основе нового статуса
                         const newStatus = isDelete ? "Неактивна" : "Активна";
                         vacancyCard.querySelector("p:nth-of-type(4)").innerHTML = `<strong>Статус:</strong> ${newStatus}`;
+
+                        // Если вакансия активируется, обновляем дату публикации
+                        if (!isDelete && responseData.publication_date) {
+                            const date = new Date(responseData.publication_date);
+                            // Форматируем дату в "YYYY-MM-DD HH:MM:SS"
+                            const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+                            vacancyCard.querySelector("p:nth-of-type(3)").innerHTML = `<strong>Дата публикации:</strong> ${formattedDate}`;
+                        }
+
 
                         // Меняем класс и текст кнопки
                         if (isDelete) {
@@ -104,4 +109,5 @@
         });
     });
 </script>
-
+</body>
+</html>
