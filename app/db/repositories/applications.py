@@ -14,3 +14,22 @@ class ApplicationRepository:
         await self.db_session.execute(query, {"candidate_id": candidate_id,
                                               "vacancy_id": vacancy_id})
         await self.db_session.commit()
+
+    async def get_applications_by_candidate(self, candidate_id: int):
+        query = """
+            SELECT 
+                ja.application_date,
+                v.id AS vacancy_id,
+                v.description,
+                v.requirements,
+                v.publication_date,
+                p.title AS position_title
+            FROM job_applications ja
+            JOIN vacancies v ON ja.vacancy_id = v.id
+            LEFT JOIN positions p ON v.position_id = p.id
+            WHERE ja.candidate_id = :candidate_id
+            ORDER BY ja.application_date DESC
+        """
+        result = await self.db_session.execute(text(query),
+                                               {"candidate_id": candidate_id})
+        return [dict(row._mapping) for row in result]

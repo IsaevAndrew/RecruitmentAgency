@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои Отклики</title>
+    <link rel="stylesheet" href="/static/css/styles_applications.css">
+</head>
+<body>
+<header>
+    <nav class="menu">
+        <a href="/vacancies">Вакансии</a>
+        <a href="/my-applications">Мои отклики</a>
+        <a href="/interviews">Собеседования</a>
+        <a href="/contracts">Контракты</a>
+        <a href="/profile/candidate">Профиль</a>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <h1>Мои Отклики</h1>
+        {% if applications %}
+        <div class="application-list">
+            {% for application in applications %}
+            <div class="application-card">
+                <h2>{{ application.position_title }}</h2>
+                <p><strong>Описание:</strong> {{ application.description }}</p>
+                <p><strong>Требования:</strong> {{ application.requirements }}
+                </p>
+                <p><strong>Дата публикации:</strong> {{
+                    application.publication_date.strftime("%Y-%m-%d %H:%M:%S")
+                    }}</p>
+                <p><strong>Дата отклика:</strong> {{
+                    application.application_date.strftime("%Y-%m-%d %H:%M:%S")
+                    }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>Вы еще не откликались на вакансии.</p>
+        {% endif %}
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
+</footer>
+</body>
+</html>
