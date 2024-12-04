@@ -104,3 +104,36 @@ class VacancyRepository:
         if row:
             return dict(row._mapping)
         return None
+
+    async def get_vacancies_with_application_status(self, candidate_id: int,
+                                                    positions=None,
+                                                    requirements=None):
+        query = """
+            SELECT 
+                v.id,
+                v.description,
+                v.requirements,
+                v.publication_date,
+                v.position_id,
+                p.title AS position_title,
+                CASE WHEN ja.id IS NOT NULL THEN TRUE ELSE FALSE END AS is_applied
+            FROM vacancies v
+            LEFT JOIN job_applications ja ON v.id = ja.vacancy_id AND ja.candidate_id = :candidate_id
+            LEFT JOIN positions p ON v.position_id = p.id
+            WHERE v.is_active = TRUE
+        """
+
+        params = {"candidate_id": candidate_id}
+
+        if positions:
+            query += " AND v.position_id = ANY(:positions)"
+            params["positions"] = positions
+
+        if requirements:
+            query += " AND LOWER(v.requirements) LIKE LOWER(:requirements)"
+            params["requirements"] = f"%{requirements}%"
+
+        query += " ORDER BY v.publication_date DESC"
+
+        result = await self.db_session.execute(text(query), params)
+        return [dict(row._mapping) for row in result]

@@ -122,8 +122,7 @@ TABLE_CREATION_QUERIES = [
         id SERIAL PRIMARY KEY,
         candidate_id INT REFERENCES candidates(id) ON DELETE CASCADE,
         vacancy_id INT REFERENCES vacancies(id) ON DELETE CASCADE,
-        application_date TIMESTAMP NOT NULL,
-        application_status VARCHAR(50) NOT NULL
+        application_date TIMESTAMP NOT NULL
     );
     """),
     text("""

@@ -110,23 +110,22 @@ async def activate_vacancy(vacancy_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/vacancies/api")
-async def get_vacancies_api(
+async def get_vacancies(
+        request: Request,
+        db: AsyncSession = Depends(get_db),
         positions: str = Query(None),
-        requirements: str = Query(None),
-        db: AsyncSession = Depends(get_db)
+        requirements: str = Query(None)
 ):
-    try:
-        service = VacancyService(repo=VacancyRepository(db))
+    current_user = get_current_user(request)
+    if current_user["role"] != "candidate":
+        raise HTTPException(status_code=403, detail="Доступ запрещен")
 
-        # Преобразуем строку с позициями в список целых чисел
-        positions_list = [int(pos) for pos in
-                          positions.split(",")] if positions else []
-
-        # Фильтрация вакансий
-        vacancies = await service.filter_vacancies(positions_list, requirements)
-
-        return {"vacancies": vacancies}
-    except Exception as e:
-        print(f"Ошибка фильтрации вакансий: {e}")
-        raise HTTPException(status_code=500,
-                            detail="Ошибка фильтрации вакансий")
+    service = VacancyService(repo=VacancyRepository(db))
+    positions_list = [int(p) for p in
+                      positions.split(",")] if positions else None
+    vacancies = await service.get_vacancies_with_application_status(
+        candidate_id=current_user["user_id"],
+        positions=positions_list,
+        requirements=requirements
+    )
+    return {"vacancies": vacancies}

@@ -24,3 +24,9 @@ class VacancyService:
 
     async def get_vacancy_by_id(self, vacancy_id: int):
         return await self.repo.get_vacancy_by_id(vacancy_id)
+
+    async def get_vacancies_with_application_status(self, candidate_id: int,
+                                                    positions=None,
+                                                    requirements=None):
+        return await self.repo.get_vacancies_with_application_status(
+            candidate_id, positions, requirements)

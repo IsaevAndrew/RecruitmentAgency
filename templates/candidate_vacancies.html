@@ -10,7 +10,7 @@
 <header>
     <nav class="menu">
         <a href="/vacancies">Вакансии</a>
-        <a href="/my-applications">Мои заявки</a>
+        <a href="/my-applications">Мои отклики</a>
         <a href="/interviews">Собеседования</a>
         <a href="/contracts">Контракты</a>
         <a href="/profile/candidate">Профиль</a>
@@ -116,11 +116,47 @@
                 <p><strong>Описание:</strong> ${vacancy.description}</p>
                 <p><strong>Требования:</strong> ${vacancy.requirements}</p>
                 <p><strong>Дата публикации:</strong> ${new Date(vacancy.publication_date).toLocaleDateString()}</p>
-                <button class="button apply-button" data-vacancy-id="${vacancy.id}">Откликнуться</button>
+                ${
+                    vacancy.is_applied
+                        ? '<p class="applied-message">Вы уже откликнулись на эту вакансию</p>'
+                        : `<button class="button apply-button" data-vacancy-id="${vacancy.id}">Откликнуться</button>`
+                }
             `;
                 vacanciesContainer.appendChild(card);
             });
         }
+
+        // Обработка отклика на вакансию
+        vacanciesContainer.addEventListener("click", async function (event) {
+            const button = event.target;
+            if (button.classList.contains("apply-button")) {
+                const vacancyId = button.dataset.vacancyId;
+
+                try {
+                    const response = await fetch(`/applications`, {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({vacancy_id: vacancyId}), // Передаем в теле
+                    });
+
+                    if (response.ok) {
+                        // Убираем кнопку и показываем сообщение "Вы откликнулись"
+                        const card = button.closest(".vacancy-card");
+                        button.remove();
+                        const message = document.createElement("p");
+                        message.classList.add("applied-message");
+                        message.textContent = "Вы уже откликнулись на эту вакансию";
+                        card.appendChild(message);
+                    } else {
+                        const error = await response.json();
+                        alert(error.detail || "Ошибка при отклике.");
+                    }
+                } catch (err) {
+                    console.error("Ошибка при отклике:", err);
+                    alert("Произошла ошибка при отклике.");
+                }
+            }
+        });
 
         // Подгрузка позиций и вакансий при загрузке страницы
         loadPositions();
