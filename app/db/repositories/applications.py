@@ -18,15 +18,18 @@ class ApplicationRepository:
     async def get_applications_by_candidate(self, candidate_id: int):
         query = """
             SELECT 
-                ja.application_date,
-                v.id AS vacancy_id,
+                v.id,
                 v.description,
                 v.requirements,
                 v.publication_date,
-                p.title AS position_title
+                v.position_id,
+                p.title AS position_title,
+                e.company_name,
+                ja.application_date
             FROM job_applications ja
             JOIN vacancies v ON ja.vacancy_id = v.id
-            LEFT JOIN positions p ON v.position_id = p.id
+            JOIN positions p ON v.position_id = p.id
+            JOIN employers e ON v.employer_id = e.id
             WHERE ja.candidate_id = :candidate_id
             ORDER BY ja.application_date DESC
         """

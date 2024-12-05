@@ -142,7 +142,7 @@ TABLE_CREATION_QUERIES = [
     $$ LANGUAGE plpgsql;
     """),
     text("""
-    CREATE TRIGGER after_job_application_insert
+    CREATE OR REPLACE TRIGGER after_job_application_insert
     AFTER INSERT ON job_applications
     FOR EACH ROW
     EXECUTE FUNCTION create_interview();

@@ -12,19 +12,16 @@ templates = Jinja2Templates(directory="templates")
 
 
 @router.get("/vacancies")
-async def get_all_vacancies(request: Request,
-                            db: AsyncSession = Depends(get_db)):
-    service = VacancyService(repo=VacancyRepository(db))
-    vacancies = await service.get_active_vacancies()
+async def get_all_vacancies(request: Request):
     current_user = get_current_user(request)
     if current_user["role"] == "employer":
         return templates.TemplateResponse(
             "employer_vacancies.html",
-            {"request": request, "vacancies": vacancies}
+            {"request": request}
         )
     return templates.TemplateResponse(
         "candidate_vacancies.html",
-        {"request": request, "vacancies": vacancies}
+        {"request": request}
     )
 
 
@@ -117,15 +114,25 @@ async def get_vacancies(
         requirements: str = Query(None)
 ):
     current_user = get_current_user(request)
-    if current_user["role"] != "candidate":
-        raise HTTPException(status_code=403, detail="Доступ запрещен")
-
     service = VacancyService(repo=VacancyRepository(db))
-    positions_list = [int(p) for p in
-                      positions.split(",")] if positions else None
-    vacancies = await service.get_vacancies_with_application_status(
-        candidate_id=current_user["user_id"],
-        positions=positions_list,
-        requirements=requirements
-    )
-    return {"vacancies": vacancies}
+
+    # Для работодателей отображаем все активные вакансии
+    if current_user["role"] == "employer":
+        vacancies = await service.get_active_vacancies(
+            positions=[int(p) for p in
+                       positions.split(",")] if positions else None,
+            requirements=requirements
+        )
+        return {"vacancies": vacancies}
+
+    # Для кандидатов отображаем вакансии с учетом откликов
+    if current_user["role"] == "candidate":
+        positions_list = [int(p) for p in
+                          positions.split(",")] if positions else None
+        vacancies = await service.get_vacancies_with_application_status(
+            candidate_id=current_user["user_id"],
+            positions=positions_list,
+            requirements=requirements
+        )
+        return {"vacancies": vacancies}
+    raise HTTPException(status_code=403, detail="Доступ запрещен")

@@ -7,14 +7,34 @@ class VacancyRepository:
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
 
-    async def get_active_vacancies(self):
-        query = text("""
-            SELECT v.id, v.description, v.requirements, v.publication_date, p.title AS position_title
+    async def get_active_vacancies(self, positions=None, requirements=None):
+        query = """
+            SELECT 
+                v.id,
+                v.description,
+                v.requirements,
+                v.publication_date,
+                v.position_id,
+                p.title AS position_title,
+                e.company_name
             FROM vacancies v
             LEFT JOIN positions p ON v.position_id = p.id
+            LEFT JOIN employers e ON v.employer_id = e.id
             WHERE v.is_active = TRUE
-        """)
-        result = await self.db_session.execute(query)
+        """
+        params = {}
+
+        if positions:
+            query += " AND v.position_id = ANY(:positions)"
+            params["positions"] = positions
+
+        if requirements:
+            query += " AND LOWER(v.requirements) LIKE LOWER(:requirements)"
+            params["requirements"] = f"%{requirements}%"
+
+        query += " ORDER BY v.publication_date DESC"
+
+        result = await self.db_session.execute(text(query), params)
         return [dict(row._mapping) for row in result]
 
     async def get_vacancies_by_employer(self, employer_id: int):
@@ -116,10 +136,12 @@ class VacancyRepository:
                 v.publication_date,
                 v.position_id,
                 p.title AS position_title,
+                e.company_name,
                 CASE WHEN ja.id IS NOT NULL THEN TRUE ELSE FALSE END AS is_applied
             FROM vacancies v
             LEFT JOIN job_applications ja ON v.id = ja.vacancy_id AND ja.candidate_id = :candidate_id
             LEFT JOIN positions p ON v.position_id = p.id
+            LEFT JOIN employers e ON v.employer_id = e.id
             WHERE v.is_active = TRUE
         """
 
