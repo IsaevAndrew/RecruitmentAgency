@@ -113,8 +113,7 @@ TABLE_CREATION_QUERIES = [
         id SERIAL PRIMARY KEY,
         candidate_id INT REFERENCES candidates(id) ON DELETE CASCADE,
         vacancy_id INT REFERENCES vacancies(id) ON DELETE CASCADE,
-        interview_date TIMESTAMP NOT NULL,
-        interview_feedback TEXT
+        interview_result BOOLEAN DEFAULT NULL
     );
     """),
     text("""
@@ -132,6 +131,22 @@ TABLE_CREATION_QUERIES = [
         PRIMARY KEY (position_id, candidate_id)
     );
     """),
+    text("""
+    CREATE OR REPLACE FUNCTION create_interview()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        INSERT INTO interviews (candidate_id, vacancy_id, interview_result)
+        VALUES (NEW.candidate_id, NEW.vacancy_id, NULL);
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+    """),
+    text("""
+    CREATE TRIGGER after_job_application_insert
+    AFTER INSERT ON job_applications
+    FOR EACH ROW
+    EXECUTE FUNCTION create_interview();
+    """)
 ]
 
 POSITIONS = [
@@ -198,7 +213,7 @@ async def populate_positions():
 
 async def create_tables():
     """
-    Создает все таблицы в базе данных.
+    Создает все таблицы и триггеры в базе данных.
     """
     try:
         for query in TABLE_CREATION_QUERIES:
