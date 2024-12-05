@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои Собеседования</title>
+    <link rel="stylesheet" href="/static/css/styles_interviews.css">
+</head>
+<body>
+<header>
+    <nav class="menu">
+        <a href="/vacancies">Вакансии</a>
+        <a href="/my-applications">Мои отклики</a>
+        <a href="/interviews">Собеседования</a>
+        <a href="/contracts">Контракты</a>
+        <a href="/profile/candidate">Профиль</a>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <h1>Мои Собеседования</h1>
+        {% if interviews %}
+        <div class="interviews-list">
+            {% for interview in interviews %}
+            <div class="interview-card">
+                <h2>{{ interview.position_title }} ({{ interview.company_name
+                    }})</h2>
+                <p><strong>Статус:</strong>
+                    {% if interview.interview_result is none %}
+                    Ожидайте
+                    {% elif interview.interview_result %}
+                    Успех
+                    {% else %}
+                    Отказано
+                    {% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>У вас пока нет собеседований.</p>
+        {% endif %}
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
+</footer>
+</body>
+</html>
