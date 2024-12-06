@@ -15,15 +15,51 @@ async def get_candidate_interviews(
         db: AsyncSession = Depends(get_db)
 ):
     current_user = get_current_user(request)
-    if current_user["role"] != "candidate":
-        raise HTTPException(status_code=403, detail="Доступ запрещен")
+    if current_user["role"] == "candidate":
+        service = InterviewService(db)
+        interviews = await service.get_interviews_by_candidate(
+            candidate_id=current_user["user_id"]
+        )
+        return templates.TemplateResponse(
+            "candidate_interviews.html",
+            {"request": request, "interviews": interviews}
+        )
+    elif current_user["role"] == "employer":
+        service = InterviewService(db)
+        interviews = await service.get_pending_interviews_by_employer(
+            employer_id=current_user["user_id"]
+        )
+        return templates.TemplateResponse(
+            "employer_interviews.html",
+            {"request": request, "interviews": interviews}
+        )
 
+
+@router.post("/interviews/{interview_id}/accept")
+async def accept_interview(
+        interview_id: int,
+        db: AsyncSession = Depends(get_db)
+):
     service = InterviewService(db)
-    interviews = await service.get_interviews_by_candidate(
-        candidate_id=current_user["user_id"]
+    success = await service.update_interview_result(
+        interview_id=interview_id,
+        result=True
     )
-    return templates.TemplateResponse(
-        "candidate_interviews.html",
-        {"request": request, "interviews": interviews}
+    if not success:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    return {"message": "Interview accepted successfully"}
+
+
+@router.post("/interviews/{interview_id}/reject")
+async def reject_interview(
+        interview_id: int,
+        db: AsyncSession = Depends(get_db)
+):
+    service = InterviewService(db)
+    success = await service.update_interview_result(
+        interview_id=interview_id,
+        result=False
     )
-    return
+    if not success:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    return {"message": "Interview rejected successfully"}

@@ -31,3 +31,37 @@ class InterviewRepository:
         result = await self.db_session.execute(query,
                                                {"candidate_id": candidate_id})
         return [dict(row._mapping) for row in result]
+
+    async def get_pending_interviews_by_employer(self, employer_id: int):
+        query = text("""
+            SELECT 
+                i.id,
+                c.last_name,
+                c.first_name,
+                c.middle_name,
+                c.city,
+                c.email,
+                c.phone,
+                v.description,
+                v.requirements,
+                p.title AS position_title
+            FROM interviews i
+            JOIN candidates c ON i.candidate_id = c.id
+            JOIN vacancies v ON i.vacancy_id = v.id
+            JOIN positions p ON v.position_id = p.id
+            WHERE v.employer_id = :employer_id AND i.interview_result IS NULL
+        """)
+        result = await self.db_session.execute(query,
+                                               {"employer_id": employer_id})
+        return [dict(row._mapping) for row in result]
+
+    async def update_interview_result(self, interview_id: int, result: bool):
+        query = text("""
+            UPDATE interviews
+            SET interview_result = :result
+            WHERE id = :interview_id
+        """)
+        result = await self.db_session.execute(query, {"result": result,
+                                                       "interview_id": interview_id})
+        await self.db_session.commit()
+        return result.rowcount > 0

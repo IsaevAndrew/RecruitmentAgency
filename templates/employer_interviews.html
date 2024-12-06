@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отклики на вакансии</title>
+    <link rel="stylesheet" href="/static/css/styles_interviews.css">
+</head>
+<body>
+<header>
+    <nav class="menu">
+        <a href="/vacancies">Вакансии</a>
+        <a href="/my-vacancies">Мои Вакансии</a>
+        <a href="/interviews">Отклики</a>
+        <a href="/contracts">Контракты</a>
+        <a href="/profile/employer">Профиль</a>
+    </nav>
+</header>
+<main>
+    <div class="container">
+        <h1>Отклики на вакансии</h1>
+        {% if interviews %}
+        <div class="interview-list">
+            {% for interview in interviews %}
+            <div class="interview-card" data-id="{{ interview.id }}">
+                <h2>{{ interview.position_title }}</h2>
+                <p><strong>Кандидат:</strong> {{ interview.last_name }} {{
+                    interview.first_name }} {{ interview.middle_name }}</p>
+                <p><strong>Город:</strong> {{ interview.city }}</p>
+                <p><strong>Email:</strong> {{ interview.email }}</p>
+                <p><strong>Телефон:</strong> {{ interview.phone }}</p>
+                <p><strong>Описание вакансии:</strong> {{ interview.description
+                    }}</p>
+                <p><strong>Требования:</strong> {{ interview.requirements }}</p>
+                <div class="card-actions">
+                    <button class="button accept-button">Принять</button>
+                    <button class="button reject-button">Отказать</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>Нет откликов на ваши вакансии.</p>
+        {% endif %}
+    </div>
+</main>
+<footer>
+    <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const interviewCards = document.querySelectorAll(".interview-card");
+
+        interviewCards.forEach(card => {
+            const interviewId = card.dataset.id;
+
+            card.querySelector(".accept-button").addEventListener("click", async () => {
+                await updateInterviewResult(interviewId, true);
+            });
+
+            card.querySelector(".reject-button").addEventListener("click", async () => {
+                await updateInterviewResult(interviewId, false);
+            });
+        });
+
+        async function updateInterviewResult(interviewId, result) {
+            const url = `/interviews/${interviewId}/${result ? "accept" : "reject"}`;
+            try {
+                const response = await fetch(url, {method: "POST"});
+                if (response.ok) {
+                    document.querySelector(`.interview-card[data-id="${interviewId}"]`).remove();
+                } else {
+                    alert("Ошибка при обновлении статуса собеседования.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Произошла ошибка при обновлении.");
+            }
+        }
+    });
+</script>
+</body>
+</html>

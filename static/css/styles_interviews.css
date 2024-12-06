@@ -87,3 +87,64 @@ footer {
     font-size: 0.85rem;
     margin-top: auto;
 }
+
+
+/* Стили для кнопок */
+.card-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.card-actions .button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.card-actions .button:hover {
+    transform: scale(1.05);
+}
+
+.card-actions .accept-button {
+    background-color: #28a745;
+}
+
+.card-actions .accept-button:hover {
+    background-color: #218838;
+}
+
+.card-actions .reject-button {
+    background-color: #dc3545;
+}
+
+.card-actions .reject-button:hover {
+    background-color: #c82333;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .interview-card {
+        padding: 15px;
+    }
+
+    .interview-card h2 {
+        font-size: 1.2rem;
+    }
+
+    .card-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .card-actions .button {
+        width: 100%;
+        text-align: center;
+    }
+}
