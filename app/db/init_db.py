@@ -104,8 +104,11 @@ TABLE_CREATION_QUERIES = [
         id SERIAL PRIMARY KEY,
         candidate_id INT REFERENCES candidates(id) ON DELETE CASCADE,
         vacancy_id INT REFERENCES vacancies(id) ON DELETE CASCADE,
+        employer_id INT REFERENCES employers(id) ON DELETE CASCADE,
         contract_date DATE NOT NULL,
-        contract_status VARCHAR(50) NOT NULL
+        contract_end_date DATE NOT NULL,
+        salary INTEGER NOT NULL,
+        contract_terms TEXT NOT NULL
     );
     """),
     text("""

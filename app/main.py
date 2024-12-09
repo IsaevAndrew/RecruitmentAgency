@@ -11,6 +11,7 @@ from app.routes.vacancy_routes import router as vacancy_router
 from app.routes.position_routes import router as position_router
 from app.routes.application_routes import router as application_router
 from app.routes.interview_routes import router as interview_router
+from app.routes.contracts_routes import router as contracts_router
 from starlette.middleware.sessions import SessionMiddleware
 
 app = FastAPI()
@@ -24,6 +25,7 @@ app.include_router(vacancy_router, prefix="")
 app.include_router(position_router, prefix="")
 app.include_router(application_router, prefix="")
 app.include_router(interview_router, prefix="")
+app.include_router(contracts_router, prefix="")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")

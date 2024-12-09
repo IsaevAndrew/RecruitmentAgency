@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои Контракты</title>
+    <link rel="stylesheet" href="/static/css/styles_contracts.css">
+</head>
+<body>
+<header>
+    <nav class="menu">
+        <a href="/vacancies">Вакансии</a>
+        <a href="/my-vacancies">Мои Вакансии</a>
+        <a href="/interviews">Отклики</a>
+        <a href="/contracts">Контракты</a>
+        <a href="/profile/employer">Профиль</a>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <h1>Мои Контракты</h1>
+        {% if contracts %}
+        <div class="contracts-list">
+            {% for contract in contracts %}
+            <div class="contract-card" data-id="{{ contract.id }}">
+                <h2>{{ contract.position_title }}</h2>
+                <p><strong>Компания:</strong> {{ contract.company_name }}</p>
+                <p><strong>Дата начала:</strong> {{ contract.contract_date }}
+                </p>
+                <p><strong>Дата окончания:</strong> {{
+                    contract.contract_end_date }}</p>
+                <p><strong>Зарплата:</strong> {{ contract.salary }} ₽</p>
+                <p><strong>Условия:</strong> {{ contract.contract_terms }}</p>
+                <hr>
+                <h3>Данные сотрудника</h3>
+                <p><strong>Имя:</strong> {{ contract.candidate_first_name }} {{
+                    contract.candidate_last_name }}</p>
+                <p><strong>Email:</strong> {{ contract.candidate_email }}</p>
+                <p><strong>Телефон:</strong> {{ contract.candidate_phone }}</p>
+                <p><strong>Город:</strong> {{ contract.candidate_city }}</p>
+                <div class="card-actions">
+                    <button class="button delete-button">Удалить</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>У вас пока нет контрактов.</p>
+        {% endif %}
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteButtons = document.querySelectorAll(".delete-button");
+
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", async () => {
+                const contractCard = button.closest(".contract-card");
+                const contractId = contractCard.dataset.id;
+
+                // Удаляем контракт
+                const success = await deleteContract(contractId);
+                if (success) {
+                    contractCard.remove();
+                } else {
+                    alert("Ошибка при удалении контракта.");
+                }
+            });
+        });
+
+        async function deleteContract(contractId) {
+            try {
+                const response = await fetch(`/contracts/${contractId}`, {
+                    method: "DELETE",
+                });
+                return response.ok;
+            } catch (err) {
+                console.error(err);
+                return false;
+            }
+        }
+    });
+</script>
+</body>
+</html>

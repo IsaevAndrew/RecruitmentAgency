@@ -33,7 +33,12 @@
                     }}</p>
                 <p><strong>Требования:</strong> {{ interview.requirements }}</p>
                 <div class="card-actions">
-                    <button class="button accept-button">Принять</button>
+                    <!-- При нажатии на кнопку "Принять" переходим на страницу создания контракта -->
+                    <button class="button accept-button"
+                            onclick="window.location.href='/interviews/create_contract/{{ interview.id }}'">
+                        Принять
+                    </button>
+                    <!-- При нажатии на кнопку "Отказать" обновляется статус через POST-запрос -->
                     <button class="button reject-button">Отказать</button>
                 </div>
             </div>
@@ -55,12 +60,12 @@
         interviewCards.forEach(card => {
             const interviewId = card.dataset.id;
 
-            card.querySelector(".accept-button").addEventListener("click", async () => {
-                await updateInterviewResult(interviewId, true);
-            });
-
+            // Обработчик кнопки "Отказать"
             card.querySelector(".reject-button").addEventListener("click", async () => {
-                await updateInterviewResult(interviewId, false);
+                const success = await updateInterviewResult(interviewId, false);
+                if (success) {
+                    document.querySelector(`.interview-card[data-id="${interviewId}"]`).remove();
+                }
             });
         });
 
@@ -68,14 +73,11 @@
             const url = `/interviews/${interviewId}/${result ? "accept" : "reject"}`;
             try {
                 const response = await fetch(url, {method: "POST"});
-                if (response.ok) {
-                    document.querySelector(`.interview-card[data-id="${interviewId}"]`).remove();
-                } else {
-                    alert("Ошибка при обновлении статуса собеседования.");
-                }
+                return response.ok;
             } catch (err) {
                 console.error(err);
                 alert("Произошла ошибка при обновлении.");
+                return false;
             }
         }
     });

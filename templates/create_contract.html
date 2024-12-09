@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание Контракта</title>
+    <link rel="stylesheet" href="/static/css/styles_create_contract.css">
+</head>
+<body>
+<main>
+    <div class="container">
+        <h1>Создание Контракта</h1>
+        <form id="contractForm" action="/contracts/create" method="post">
+            <!-- Скрытые поля для передачи данных -->
+            <input type="hidden" name="candidate_id" value="{{ candidate_id }}">
+            <input type="hidden" name="vacancy_id" value="{{ vacancy_id }}">
+            <input type="hidden" name="employer_id" value="{{ employer_id }}">
+
+            <!-- Поле для даты начала контракта -->
+            <div class="form-group">
+                <label for="contract_date">Дата начала контракта:</label>
+                <input type="date" id="contract_date" name="contract_date"
+                       required>
+                <span class="error-message" id="start-date-error"></span>
+            </div>
+
+            <!-- Поле для даты окончания контракта -->
+            <div class="form-group">
+                <label for="contract_end_date">Дата окончания контракта:</label>
+                <input type="date" id="contract_end_date"
+                       name="contract_end_date" required>
+                <span class="error-message" id="end-date-error"></span>
+            </div>
+
+            <!-- Поле для зарплаты -->
+            <div class="form-group">
+                <label for="salary">Зарплата (в рублях):</label>
+                <input type="number" id="salary" name="salary" min="0" required>
+                <span class="error-message" id="salary-error"></span>
+            </div>
+
+            <!-- Поле для условий контракта -->
+            <div class="form-group">
+                <label for="contract_terms">Условия контракта:</label>
+                <textarea id="contract_terms" name="contract_terms" rows="4"
+                          required></textarea>
+            </div>
+
+            <!-- Кнопка отправки формы -->
+            <button type="submit" class="button" id="submitButton" disabled>
+                Создать Контракт
+            </button>
+        </form>
+    </div>
+</main>
+<footer>
+    <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("contractForm");
+        const contractDateInput = document.getElementById("contract_date");
+        const contractEndDateInput = document.getElementById("contract_end_date");
+        const salaryInput = document.getElementById("salary");
+        const submitButton = document.getElementById("submitButton");
+
+        const startDateError = document.getElementById("start-date-error");
+        const endDateError = document.getElementById("end-date-error");
+        const salaryError = document.getElementById("salary-error");
+
+        // Установка минимальной даты
+        const today = new Date().toISOString().split("T")[0];
+        contractDateInput.setAttribute("min", today);
+        contractEndDateInput.setAttribute("min", today);
+
+        function validateForm() {
+            let isValid = true;
+            const startDate = contractDateInput.value;
+            const endDate = contractEndDateInput.value;
+            const salary = salaryInput.value;
+
+            // Проверка даты окончания контракта
+            if (endDate && startDate && endDate < startDate) {
+                endDateError.textContent = "Дата окончания контракта не может быть раньше даты начала.";
+                isValid = false;
+            } else {
+                endDateError.textContent = "";
+            }
+
+            // Проверка зарплаты
+            if (salary <= 0) {
+                salaryError.textContent = "Зарплата должна быть положительным числом.";
+                isValid = false;
+            } else {
+                salaryError.textContent = "";
+            }
+
+            // Кнопка доступна только если все данные корректны
+            submitButton.disabled = !isValid;
+        }
+
+        // Слушатели событий для проверки данных
+        contractDateInput.addEventListener("input", validateForm);
+        contractEndDateInput.addEventListener("input", validateForm);
+        salaryInput.addEventListener("input", validateForm);
+        form.addEventListener("input", validateForm);
+    });
+</script>
+</body>
+</html>

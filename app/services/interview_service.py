@@ -13,3 +13,6 @@ class InterviewService:
 
     async def update_interview_result(self, interview_id: int, result: bool):
         return await self.repo.update_interview_result(interview_id, result)
+
+    async def get_interview_by_id(self, interview_id: int):
+        return await self.repo.get_interview_by_id(interview_id)

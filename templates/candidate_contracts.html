@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои Контракты</title>
+    <link rel="stylesheet" href="/static/css/styles_contracts.css">
+</head>
+<body>
+<header>
+    <nav class="menu">
+        <a href="/vacancies">Вакансии</a>
+        <a href="/my-applications">Мои отклики</a>
+        <a href="/interviews">Собеседования</a>
+        <a href="/contracts">Контракты</a>
+        <a href="/profile/candidate">Профиль</a>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <h1>Мои Контракты</h1>
+        {% if contracts %}
+        <div class="contracts-list">
+            {% for contract in contracts %}
+            <div class="contract-card" data-id="{{ contract.id }}">
+                <h2>{{ contract.position_title }}</h2>
+                <p><strong>Компания:</strong> {{ contract.company_name }}</p>
+                <p><strong>Дата начала:</strong> {{ contract.contract_date }}</p>
+                <p><strong>Дата окончания:</strong> {{ contract.contract_end_date }}</p>
+                <p><strong>Зарплата:</strong> {{ contract.salary }} ₽</p>
+                <p><strong>Условия:</strong> {{ contract.contract_terms }}</p>
+                <p><strong>Статус:</strong> {{ contract.contract_status }}</p>
+                <button class="button delete-button">Удалить</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>У вас пока нет контрактов.</p>
+        {% endif %}
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 Кадровое агентство. Все права защищены.</p>
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const contractCards = document.querySelectorAll(".contract-card");
+
+        contractCards.forEach(card => {
+            const contractId = card.dataset.id;
+
+            card.querySelector(".delete-button").addEventListener("click", async () => {
+                const success = await deleteContract(contractId);
+                if (success) {
+                    document.querySelector(`.contract-card[data-id="${contractId}"]`).remove();
+                } else {
+                    alert("Ошибка при удалении контракта.");
+                }
+            });
+        });
+
+        async function deleteContract(contractId) {
+            try {
+                const response = await fetch(`/contracts/${contractId}`, { method: "DELETE" });
+                return response.ok;
+            } catch (err) {
+                console.error(err);
+                return false;
+            }
+        }
+    });
+</script>
+</body>
+</html>

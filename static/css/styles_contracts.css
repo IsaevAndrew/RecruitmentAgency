@@ -1,4 +1,4 @@
-/* Сброс стилей */
+/* Reset Styles */
 * {
     margin: 0;
     padding: 0;
@@ -43,11 +43,11 @@ header .menu a:hover {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 30px auto;
     padding: 20px;
     background-color: #fff;
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
@@ -56,28 +56,75 @@ header .menu a:hover {
 
 h1 {
     text-align: center;
-    font-size: 1.8rem;
+    font-size: 2rem;
     margin-bottom: 20px;
+    color: #333;
 }
 
-.interviews-list {
+.contracts-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
-.interview-card {
-    padding: 15px;
-    margin: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.contract-card {
+    padding: 20px;
+    background-color: #fdfdfd;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+    overflow: hidden;
+    position: relative;
 }
 
-.interview-card h2 {
+.contract-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+}
+
+.contract-card h2 {
+    font-size: 1.5rem;
     color: #0073e6;
     margin-bottom: 10px;
+}
+
+.contract-card p {
+    margin: 5px 0;
+    line-height: 1.6;
+}
+
+.contract-card strong {
+    color: #333;
+}
+
+.card-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+}
+
+.button.delete-button {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.button.delete-button:hover {
+    background-color: #c0392b;
 }
 
 footer {
@@ -89,63 +136,15 @@ footer {
     margin-top: auto;
 }
 
-
-/* Стили для кнопок */
-.card-actions {
-    margin-top: 15px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.card-actions .button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    font-weight: bold;
-    color: white;
+/* Additional Styling for Better UX */
+.contract-card hr {
+    margin: 15px 0;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    border-top: 1px solid #ddd;
 }
 
-.card-actions .button:hover {
-    transform: scale(1.05);
-}
-
-.card-actions .accept-button {
-    background-color: #28a745;
-}
-
-.card-actions .accept-button:hover {
-    background-color: #218838;
-}
-
-.card-actions .reject-button {
-    background-color: #dc3545;
-}
-
-.card-actions .reject-button:hover {
-    background-color: #c82333;
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-    .interview-card {
-        padding: 15px;
-    }
-
-    .interview-card h2 {
-        font-size: 1.2rem;
-    }
-
-    .card-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .card-actions .button {
-        width: 100%;
-        text-align: center;
-    }
+.contract-card h3 {
+    margin-top: 15px;
+    font-size: 1.3rem;
+    color: #555;
 }

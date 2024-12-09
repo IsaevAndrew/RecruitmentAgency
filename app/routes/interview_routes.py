@@ -41,13 +41,10 @@ async def accept_interview(
         db: AsyncSession = Depends(get_db)
 ):
     service = InterviewService(db)
-    success = await service.update_interview_result(
+    await service.update_interview_result(
         interview_id=interview_id,
         result=True
     )
-    if not success:
-        raise HTTPException(status_code=404, detail="Interview not found")
-    return {"message": "Interview accepted successfully"}
 
 
 @router.post("/interviews/{interview_id}/reject")
@@ -56,10 +53,31 @@ async def reject_interview(
         db: AsyncSession = Depends(get_db)
 ):
     service = InterviewService(db)
-    success = await service.update_interview_result(
+    await service.update_interview_result(
         interview_id=interview_id,
         result=False
     )
-    if not success:
-        raise HTTPException(status_code=404, detail="Interview not found")
-    return {"message": "Interview rejected successfully"}
+
+
+@router.get("/interviews/create_contract/{interview_id}")
+async def create_contract(interview_id: int,
+                          request: Request,
+                          db: AsyncSession = Depends(get_db)):
+    service = InterviewService(db)
+    interview = await service.get_interview_by_id(interview_id)
+    await service.update_interview_result(
+        interview_id=interview_id,
+        result=True
+    )
+    if not interview:
+        raise HTTPException(status_code=404, detail="Собеседование не найдено")
+
+    return templates.TemplateResponse(
+        "create_contract.html",
+        {
+            "request": request,
+            "candidate_id": interview["candidate_id"],
+            "vacancy_id": interview["vacancy_id"],
+            "employer_id": interview["employer_id"]
+        }
+    )

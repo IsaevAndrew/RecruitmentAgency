@@ -126,46 +126,60 @@
         const today = new Date().toISOString().split("T")[0]; // Получаем текущую дату в формате YYYY-MM-DD
         dateInput.setAttribute("max", today);
 
-
         const validateForm = () => {
-            const isValid = requiredInputs.every(input => input.checkValidity());
+            let isValid = true;
+
+            requiredInputs.forEach(input => {
+                if (!input.value.trim() || !input.checkValidity()) {
+                    isValid = false;
+                }
+            });
+
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const emailError = document.getElementById('email-error');
+            if (!emailPattern.test(emailInput.value)) {
+                emailError.textContent = 'Введите корректный email.';
+                isValid = false;
+            } else {
+                emailError.textContent = '';
+            }
+
+            const phonePattern = /^\+?[0-9\s\-()]{10,15}$/;
+            const phoneError = document.getElementById('phone-error');
+            if (!phonePattern.test(phoneInput.value)) {
+                phoneError.textContent = 'Введите корректный номер телефона.';
+                isValid = false;
+            } else {
+                phoneError.textContent = '';
+            }
+
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+            const passwordError = document.getElementById('password-error');
+            if (!passwordPattern.test(passwordInput.value)) {
+                passwordError.textContent = 'Пароль должен содержать заглавные, строчные буквы и цифры.';
+                isValid = false;
+            } else {
+                passwordError.textContent = '';
+            }
+
+            const confirmPasswordError = document.getElementById('confirm-password-error');
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordError.textContent = 'Пароли не совпадают.';
+                isValid = false;
+            } else {
+                confirmPasswordError.textContent = '';
+            }
             submitButton.disabled = !isValid;
         };
 
-        // Валидация почты
-        emailInput.addEventListener('input', function () {
-            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            const errorMessage = document.getElementById('email-error');
-            errorMessage.textContent = emailPattern.test(emailInput.value) ? '' : 'Введите корректный email.';
-            validateForm();
-        });
-
-        // Валидация телефона
-        phoneInput.addEventListener('input', function () {
-            const phonePattern = /^\+?[0-9\s\-()]{10,15}$/;
-            const errorMessage = document.getElementById('phone-error');
-            errorMessage.textContent = phonePattern.test(phoneInput.value) ? '' : 'Введите корректный номер телефона.';
-            validateForm();
-        });
-
-        // Валидация пароля
-        passwordInput.addEventListener('input', function () {
-            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-            const errorMessage = document.getElementById('password-error');
-            errorMessage.textContent = passwordPattern.test(passwordInput.value) ? '' : 'Пароль должен содержать заглавные, строчные буквы и цифры.';
-            validateForm();
-        });
-
-        // Проверка совпадения паролей
-        confirmPasswordInput.addEventListener('input', function () {
-            const errorMessage = document.getElementById('confirm-password-error');
-            errorMessage.textContent = passwordInput.value === confirmPasswordInput.value ? '' : 'Пароли не совпадают.';
-            validateForm();
-        });
-
-        // Проверка формы при изменении любого поля
         requiredInputs.forEach(input => input.addEventListener('input', validateForm));
+        emailInput.addEventListener('input', validateForm);
+        phoneInput.addEventListener('input', validateForm);
+        passwordInput.addEventListener('input', validateForm);
+        confirmPasswordInput.addEventListener('input', validateForm);
+        validateForm();
     });
 </script>
+
 </body>
 </html>
