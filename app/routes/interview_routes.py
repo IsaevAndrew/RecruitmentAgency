@@ -9,7 +9,7 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-@router.get("/interviews")
+@router.get("/")
 async def get_candidate_interviews(
         request: Request,
         db: AsyncSession = Depends(get_db)
@@ -35,7 +35,7 @@ async def get_candidate_interviews(
         )
 
 
-@router.post("/interviews/{interview_id}/accept")
+@router.post("/{interview_id}/accept")
 async def accept_interview(
         interview_id: int,
         db: AsyncSession = Depends(get_db)
@@ -47,7 +47,7 @@ async def accept_interview(
     )
 
 
-@router.post("/interviews/{interview_id}/reject")
+@router.post("/{interview_id}/reject")
 async def reject_interview(
         interview_id: int,
         db: AsyncSession = Depends(get_db)
@@ -59,7 +59,7 @@ async def reject_interview(
     )
 
 
-@router.get("/interviews/create_contract/{interview_id}")
+@router.get("/create_contract/{interview_id}")
 async def create_contract(interview_id: int,
                           request: Request,
                           db: AsyncSession = Depends(get_db)):

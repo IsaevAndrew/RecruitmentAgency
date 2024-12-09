@@ -3,7 +3,6 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Request, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.dependencies import get_db
-from app.db.repositories.contracts import ContractRepository
 from app.services.session_service import get_current_user
 from app.services.contract_service import ContractService
 from fastapi.responses import RedirectResponse
@@ -13,7 +12,7 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-@router.get("/contracts")
+@router.get("/")
 async def get_contracts(
         request: Request,
         db: AsyncSession = Depends(get_db)
@@ -40,7 +39,7 @@ async def get_contracts(
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
 
-@router.post("/contracts/create")
+@router.post("/create")
 async def create_contract(
         candidate_id: int = Form(...),
         vacancy_id: int = Form(...),
@@ -53,7 +52,8 @@ async def create_contract(
 ):
     # Преобразование строковых дат в объекты datetime.date
     contract_date_obj = datetime.strptime(contract_date, "%Y-%m-%d").date()
-    contract_end_date_obj = datetime.strptime(contract_end_date, "%Y-%m-%d").date()
+    contract_end_date_obj = datetime.strptime(contract_end_date,
+                                              "%Y-%m-%d").date()
 
     # Инициализация сервиса контракта
     service = ContractService(db)
@@ -73,7 +73,7 @@ async def create_contract(
     return RedirectResponse(url="/contracts", status_code=303)
 
 
-@router.delete("/contracts/{contract_id}")
+@router.delete("/{contract_id}")
 async def delete_contract(
         contract_id: int,
         db: AsyncSession = Depends(get_db)

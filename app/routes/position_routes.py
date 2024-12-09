@@ -7,7 +7,7 @@ from app.db.repositories.positions import PositionRepository
 router = APIRouter()
 
 
-@router.get("/positions")
+@router.get("/")
 async def get_positions(db: AsyncSession = Depends(get_db)):
     """
     Возвращает список позиций через сервис.
