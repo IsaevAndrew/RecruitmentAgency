@@ -55,6 +55,7 @@ class VacancyRepository:
                                                {"employer_id": employer_id})
         return [dict(row._mapping) for row in result]
 
+
     async def create_vacancy(self, vacancy_data: dict):
         query = text("""
             INSERT INTO vacancies (description, requirements, publication_date, is_active, employer_id, position_id)
