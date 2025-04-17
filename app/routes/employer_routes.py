@@ -1,27 +1,32 @@
 from fastapi import APIRouter, Form, HTTPException, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import HTMLResponse, RedirectResponse
-
-from app.services.employer_service import EmployerService
 from fastapi.templating import Jinja2Templates
+
 from app.db.dependencies import get_db
 from app.db.repositories.employers import EmployerRepository
 from app.services.session_service import get_current_user
+from app.services.employer_service import EmployerService
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-@router.post("/register/employer")
+@router.post(
+    "/register/employer",
+    tags=["employers"],
+    summary="Регистрация работодателя",
+    description="Создает аккаунт работодателя и сохраняет данные в базе"
+)
 async def register_employer(
         request: Request,
-        email: str = Form(...),
-        phone: str = Form(...),
-        password: str = Form(...),
-        confirm_password: str = Form(...),
-        company_name: str = Form(...),
-        address: str = Form(...),
-        about_company: str = Form(None),
+        email: str = Form(..., description="Электронная почта работодателя"),
+        phone: str = Form(..., description="Номер телефона"),
+        password: str = Form(..., description="Пароль"),
+        confirm_password: str = Form(..., description="Подтверждение пароля"),
+        company_name: str = Form(..., description="Название компании"),
+        address: str = Form(..., description="Адрес компании"),
+        about_company: str = Form(None, description="Описание компании"),
         db: AsyncSession = Depends(get_db)
 ):
     service = EmployerService(repo=EmployerRepository(db_session=db))
@@ -44,7 +49,11 @@ async def register_employer(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/profile/employer", response_class=HTMLResponse)
+@router.get(
+    "/profile/employer",
+    response_class=HTMLResponse,
+    include_in_schema=False
+)
 async def get_employer_profile(
         request: Request,
         db: AsyncSession = Depends(get_db)
@@ -62,14 +71,19 @@ async def get_employer_profile(
     )
 
 
-@router.post("/profile/employer/save")
+@router.post(
+    "/profile/employer/save",
+    tags=["employers"],
+    summary="Сохранение профиля работодателя",
+    description="Обновляет данные профиля работодателя"
+)
 async def save_employer_profile(
         request: Request,
-        company_name: str = Form(...),
-        email: str = Form(...),
-        phone: str = Form(...),
-        address: str = Form(None),
-        about_company: str = Form(None),
+        company_name: str = Form(..., description="Название компании"),
+        email: str = Form(..., description="Электронная почта"),
+        phone: str = Form(..., description="Номер телефона"),
+        address: str = Form(None, description="Адрес"),
+        about_company: str = Form(None, description="Описание компании"),
         db: AsyncSession = Depends(get_db)
 ):
     current_user = get_current_user(request)

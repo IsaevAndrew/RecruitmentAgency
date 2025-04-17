@@ -2,17 +2,23 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Form
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
+
 from app.db.dependencies import get_db
 from app.services.session_service import get_current_user
 from app.services.contract_service import ContractService
-from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-@router.get("/")
+@router.get(
+    "/",
+    tags=["contracts"],
+    summary="Контракт по id",
+    description="Позволяет получить информацию по котракту"
+)
 async def get_contracts(
         request: Request,
         db: AsyncSession = Depends(get_db)
@@ -39,26 +45,29 @@ async def get_contracts(
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
 
-@router.post("/create")
+@router.post(
+    "/create",
+    tags=["contracts"],
+    summary="Создание контракта",
+    description="Создает новый контракт между кандидатом и работодателем"
+)
 async def create_contract(
-        candidate_id: int = Form(...),
-        vacancy_id: int = Form(...),
-        employer_id: int = Form(...),
-        contract_date: str = Form(...),
-        contract_end_date: str = Form(...),
-        salary: int = Form(...),
-        contract_terms: str = Form(...),
+        candidate_id: int = Form(..., description="ID кандидата"),
+        vacancy_id: int = Form(..., description="ID вакансии"),
+        employer_id: int = Form(..., description="ID работодателя"),
+        contract_date: str = Form(...,
+                                  description="Дата начала контракта (YYYY-MM-DD)"),
+        contract_end_date: str = Form(...,
+                                      description="Дата окончания контракта (YYYY-MM-DD)"),
+        salary: int = Form(..., description="Зарплата по контракту"),
+        contract_terms: str = Form(..., description="Условия контракта"),
         db: AsyncSession = Depends(get_db)
 ):
-    # Преобразование строковых дат в объекты datetime.date
     contract_date_obj = datetime.strptime(contract_date, "%Y-%m-%d").date()
     contract_end_date_obj = datetime.strptime(contract_end_date,
                                               "%Y-%m-%d").date()
 
-    # Инициализация сервиса контракта
     service = ContractService(db)
-
-    # Создание контракта
     await service.create_contract(
         candidate_id=candidate_id,
         vacancy_id=vacancy_id,
@@ -69,11 +78,15 @@ async def create_contract(
         contract_terms=contract_terms,
     )
 
-    # Перенаправление на список контрактов
     return RedirectResponse(url="/contracts", status_code=303)
 
 
-@router.delete("/{contract_id}")
+@router.delete(
+    "/{contract_id}",
+    tags=["contracts"],
+    summary="Удаление контракта",
+    description="Удаляет контракт по его идентификатору"
+)
 async def delete_contract(
         contract_id: int,
         db: AsyncSession = Depends(get_db)

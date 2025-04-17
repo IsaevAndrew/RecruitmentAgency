@@ -3,16 +3,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.dependencies import get_db
 from app.services.auth_service import AuthService
 from app.db.repositories.auth import AuthRepository
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import RedirectResponse
 
 router = APIRouter()
 
 
-@router.post("/candidate")
+@router.post(
+    "/candidate",
+    tags=["auth"],
+    summary="Вход для кандидата",
+    description="Аутентифицирует кандидата по email и паролю и перенаправляет на страницу профиля"
+)
 async def login_candidate(
         request: Request,
-        email: str = Form(...),
-        password: str = Form(...),
+        email: str = Form(..., description="Электронная почта кандидата"),
+        password: str = Form(..., description="Пароль кандидата"),
         db: AsyncSession = Depends(get_db)
 ):
     auth_service = AuthService(repo=AuthRepository(db_session=db))
@@ -22,11 +27,16 @@ async def login_candidate(
     return RedirectResponse(url="/profile/candidate", status_code=303)
 
 
-@router.post("/employer")
+@router.post(
+    "/employer",
+    tags=["auth"],
+    summary="Вход для работодателя",
+    description="Аутентифицирует работодателя по email и паролю и перенаправляет на страницу профиля"
+)
 async def login_employer(
         request: Request,
-        email: str = Form(...),
-        password: str = Form(...),
+        email: str = Form(..., description="Электронная почта работодателя"),
+        password: str = Form(..., description="Пароль работодателя"),
         db: AsyncSession = Depends(get_db)
 ):
     auth_service = AuthService(repo=AuthRepository(db_session=db))

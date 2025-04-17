@@ -1,33 +1,40 @@
 from datetime import datetime
 from fastapi import APIRouter, Form, Request, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.services.candidate_service import CandidateService
-from app.db.repositories.candidates import CandidateRepository
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+
 from app.db.dependencies import get_db
 from app.services.session_service import get_current_user
-from fastapi.templating import Jinja2Templates
+from app.services.candidate_service import CandidateService
+from app.db.repositories.candidates import CandidateRepository
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-@router.post("/register/candidate")
+@router.post(
+    "/register/candidate",
+    tags=["candidates"],
+    summary="Регистрация кандидата",
+    description="Создает нового кандидата и сохраняет информацию в базе данных"
+)
 async def register_candidate(
         request: Request,
-        last_name: str = Form(...),
-        first_name: str = Form(...),
-        middle_name: str = Form(None),
-        date_of_birth: str = Form(...),
-        gender: str = Form(...),
-        email: str = Form(...),
-        phone: str = Form(...),
-        password: str = Form(...),
-        confirm_password: str = Form(...),
-        city: str = Form(...),
-        education: str = Form(None),
-        work_experience: str = Form(None),
-        skills: str = Form(None),
+        last_name: str = Form(..., description="Фамилия"),
+        first_name: str = Form(..., description="Имя"),
+        middle_name: str = Form(None, description="Отчество"),
+        date_of_birth: str = Form(...,
+                                  description="Дата рождения (YYYY-MM-DD)"),
+        gender: str = Form(..., description="Пол"),
+        email: str = Form(..., description="Электронная почта"),
+        phone: str = Form(..., description="Номер телефона"),
+        password: str = Form(..., description="Пароль"),
+        confirm_password: str = Form(..., description="Подтверждение пароля"),
+        city: str = Form(..., description="Город проживания"),
+        education: str = Form(None, description="Образование"),
+        work_experience: str = Form(None, description="Опыт работы"),
+        skills: str = Form(None, description="Навыки"),
         db: AsyncSession = Depends(get_db)
 ):
     service = CandidateService(repo=CandidateRepository(db_session=db))
@@ -56,7 +63,11 @@ async def register_candidate(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/profile/candidate", response_class=HTMLResponse)
+@router.get(
+    "/profile/candidate",
+    response_class=HTMLResponse,
+    include_in_schema=False
+)
 async def get_candidate_profile(
         request: Request,
         db: AsyncSession = Depends(get_db)
@@ -65,7 +76,6 @@ async def get_candidate_profile(
     if current_user["role"] != "candidate":
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
-    print(current_user)
     candidate_service = CandidateService(
         repo=CandidateRepository(db_session=db))
     candidate = await candidate_service.get_candidate_profile(
@@ -76,14 +86,20 @@ async def get_candidate_profile(
     )
 
 
-@router.post("/profile/candidate/save")
+@router.post(
+    "/profile/candidate/save",
+    tags=["candidates"],
+    summary="Сохранение профиля кандидата",
+    description="Обновляет личную информацию кандидата"
+)
 async def save_candidate_profile(
         request: Request,
-        date_of_birth: str = Form(...),
-        city: str = Form(...),
-        education: str = Form(None),
-        work_experience: str = Form(None),
-        skills: str = Form(None),
+        date_of_birth: str = Form(...,
+                                  description="Дата рождения (YYYY-MM-DD)"),
+        city: str = Form(..., description="Город проживания"),
+        education: str = Form(None, description="Образование"),
+        work_experience: str = Form(None, description="Опыт работы"),
+        skills: str = Form(None, description="Навыки"),
         db: AsyncSession = Depends(get_db)
 ):
     current_user = get_current_user(request)
@@ -91,7 +107,6 @@ async def save_candidate_profile(
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
     try:
-        # Конвертируем строку даты в объект datetime.date
         date_of_birth_obj = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
     except ValueError:
         raise HTTPException(status_code=400, detail="Некорректный формат даты")
@@ -109,5 +124,4 @@ async def save_candidate_profile(
 
     await candidate_service.update_candidate_profile(current_user["user_id"],
                                                      updated_data)
-
     return {"message": "Данные успешно сохранены"}

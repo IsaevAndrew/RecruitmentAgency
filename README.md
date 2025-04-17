@@ -29,7 +29,7 @@ Recruitment Agency — это веб-приложение, разработан�
 2. **Запуск Docker Compose**
    Выполните следующую команду для запуска контейнеров:
    ```bash
-   docker-compose -f docker-compose.local.yml --env-file .env.local up
+   docker-compose -f docker-compose.local.yml --env-file .env.local up --build
    ```
 
 3. **Доступ к приложению**

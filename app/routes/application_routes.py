@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.dependencies import get_db
 from app.db.repositories.applications import ApplicationRepository
@@ -11,15 +11,20 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
-# Pydantic модель для тела запроса
 class ApplicationRequest(BaseModel):
-    vacancy_id: int
+    vacancy_id: int = Field(...,
+                            description="Идентификатор вакансии, на которую подается отклик")
 
 
-@router.post("/applications")
+@router.post(
+    "/applications",
+    tags=["applications"],
+    summary="Отклик на вакансию",
+    description="Позволяет кандидату откликнуться на выбранную вакансию"
+)
 async def apply_for_vacancy(
         request: Request,
-        application_data: ApplicationRequest,  # Читаем vacancy_id из тела
+        application_data: ApplicationRequest,
         db: AsyncSession = Depends(get_db)
 ):
     current_user = get_current_user(request)
@@ -34,7 +39,12 @@ async def apply_for_vacancy(
     return {"message": "Отклик успешно отправлен"}
 
 
-@router.get("/my-applications")
+@router.get(
+    "/my-applications",
+    tags=["applications"],
+    summary="Просмотр откликов на вакансии",
+    description="Позволяет кандидату просмотреть отклики на вакансии"
+)
 async def get_my_applications(
         request: Request,
         db: AsyncSession = Depends(get_db)
