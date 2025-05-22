@@ -19,8 +19,6 @@ def mock_session():
     return session
 
 
-# CandidateRepository
-
 @pytest.mark.asyncio
 async def test_candidate_is_email_taken_true(mock_session):
     mock_res = MagicMock()
